@@ -111,3 +111,72 @@ async def search_character(nickname: str):
         "main_stats": main_stats,
         "date": basic.get("date"),
     }
+
+
+
+# ============================================================
+# 엔드포인트 3: 장비 정보 조회
+# ============================================================
+@app.get("/api/equipment")
+async def get_equipment(nickname: str):
+    """
+    닉네임으로 장착 중인 장비 정보를 조회한다.
+    스타포스, 잠재능력, 추가옵션 등 상세 정보 포함.
+    """
+
+    if not API_KEY:
+        raise HTTPException(status_code=500, detail="API 키가 설정되지 않았습니다.")
+
+    yesterday = get_yesterday()
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+
+        # 1단계: OCID 조회
+        ocid_response = await client.get(
+            f"{BASE_URL}/id",
+            headers=HEADERS,
+            params={"character_name": nickname},
+        )
+
+        if ocid_response.status_code != 200:
+            raise HTTPException(status_code=404, detail=f"'{nickname}' 캐릭터를 찾을 수 없습니다.")
+
+        ocid = ocid_response.json()["ocid"]
+
+        # 2단계: 장비 정보 조회
+        equip_response = await client.get(
+            f"{BASE_URL}/character/item-equipment",
+            headers=HEADERS,
+            params={"ocid": ocid, "date": yesterday},
+        )
+
+        if equip_response.status_code != 200:
+            raise HTTPException(status_code=502, detail="장비 정보 조회 실패")
+
+        equip_data = equip_response.json()
+
+    # 3단계: 장비별 핵심 정보만 정리
+    items = []
+    for item in equip_data.get("item_equipment", []):
+        items.append({
+            "slot": item.get("item_equipment_slot"),
+            "name": item.get("item_name"),
+            "icon": item.get("item_icon"),
+            "starforce": item.get("starforce"),
+            "potential_option_grade": item.get("potential_option_grade"),
+            "potential_option_1": item.get("potential_option_1"),
+            "potential_option_2": item.get("potential_option_2"),
+            "potential_option_3": item.get("potential_option_3"),
+            "additional_potential_option_grade": item.get("additional_potential_option_grade"),
+            "additional_potential_option_1": item.get("additional_potential_option_1"),
+            "additional_potential_option_2": item.get("additional_potential_option_2"),
+            "additional_potential_option_3": item.get("additional_potential_option_3"),
+            "scroll_upgrade": item.get("scroll_upgrade"),
+        })
+
+    return {
+        "character_name": nickname,
+        "date": equip_data.get("date"),
+        "total_items": len(items),
+        "items": items,
+    }
