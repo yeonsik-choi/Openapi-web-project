@@ -242,3 +242,151 @@ async def get_union(nickname: str):
         "union_raider_stats": raider_data.get("union_raider_stat"),
         "union_occupied_stats": raider_data.get("union_occupied_stat"),
     }
+
+# ============================================================
+# 엔드포인트 5: 하이퍼스탯 조회
+# ============================================================
+@app.get("/api/hyper-stat")
+async def get_hyper_stat(nickname: str):
+    """닉네임으로 하이퍼스탯 정보를 조회한다."""
+
+    if not API_KEY:
+        raise HTTPException(status_code=500, detail="API 키가 설정되지 않았습니다.")
+
+    yesterday = get_yesterday()
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        ocid_response = await client.get(
+            f"{BASE_URL}/id",
+            headers=HEADERS,
+            params={"character_name": nickname},
+        )
+        if ocid_response.status_code != 200:
+            raise HTTPException(status_code=404, detail=f"'{nickname}' 캐릭터를 찾을 수 없습니다.")
+
+        ocid = ocid_response.json()["ocid"]
+
+        hyper_response = await client.get(
+            f"{BASE_URL}/character/hyper-stat",
+            headers=HEADERS,
+            params={"ocid": ocid, "date": yesterday},
+        )
+        if hyper_response.status_code != 200:
+            raise HTTPException(status_code=502, detail="하이퍼스탯 조회 실패")
+
+        data = hyper_response.json()
+
+    return {
+        "character_name": nickname,
+        "date": data.get("date"),
+        "use_preset_no": data.get("use_preset_no"),
+        "hyper_stat_preset_1": data.get("hyper_stat_preset_1"),
+        "hyper_stat_preset_2": data.get("hyper_stat_preset_2"),
+        "hyper_stat_preset_3": data.get("hyper_stat_preset_3"),
+    }
+
+
+# ============================================================
+# 엔드포인트 6: 심볼 장비 조회
+# ============================================================
+@app.get("/api/symbol")
+async def get_symbol(nickname: str):
+    """닉네임으로 아케인/그란디스 심볼 정보를 조회한다."""
+
+    if not API_KEY:
+        raise HTTPException(status_code=500, detail="API 키가 설정되지 않았습니다.")
+
+    yesterday = get_yesterday()
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        ocid_response = await client.get(
+            f"{BASE_URL}/id",
+            headers=HEADERS,
+            params={"character_name": nickname},
+        )
+        if ocid_response.status_code != 200:
+            raise HTTPException(status_code=404, detail=f"'{nickname}' 캐릭터를 찾을 수 없습니다.")
+
+        ocid = ocid_response.json()["ocid"]
+
+        symbol_response = await client.get(
+            f"{BASE_URL}/character/symbol-equipment",
+            headers=HEADERS,
+            params={"ocid": ocid, "date": yesterday},
+        )
+        if symbol_response.status_code != 200:
+            raise HTTPException(status_code=502, detail="심볼 정보 조회 실패")
+
+        data = symbol_response.json()
+
+    # 심볼별 핵심 정보 정리
+    symbols = []
+    for s in data.get("symbol", []):
+        symbols.append({
+            "name": s.get("symbol_name"),
+            "icon": s.get("symbol_icon"),
+            "force": s.get("symbol_force"),
+            "level": s.get("symbol_level"),
+            "str": s.get("symbol_str"),
+            "dex": s.get("symbol_dex"),
+            "int": s.get("symbol_int"),
+            "luk": s.get("symbol_luk"),
+            "hp": s.get("symbol_hp"),
+            "growth_count": s.get("symbol_growth_count"),
+            "require_growth_count": s.get("symbol_require_growth_count"),
+        })
+
+    return {
+        "character_name": nickname,
+        "date": data.get("date"),
+        "character_class": data.get("character_class"),
+        "total_symbols": len(symbols),
+        "symbols": symbols,
+    }
+
+
+# ============================================================
+# 엔드포인트 7: 어빌리티 조회
+# ============================================================
+@app.get("/api/ability")
+async def get_ability(nickname: str):
+    """닉네임으로 어빌리티 정보를 조회한다."""
+
+    if not API_KEY:
+        raise HTTPException(status_code=500, detail="API 키가 설정되지 않았습니다.")
+
+    yesterday = get_yesterday()
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        ocid_response = await client.get(
+            f"{BASE_URL}/id",
+            headers=HEADERS,
+            params={"character_name": nickname},
+        )
+        if ocid_response.status_code != 200:
+            raise HTTPException(status_code=404, detail=f"'{nickname}' 캐릭터를 찾을 수 없습니다.")
+
+        ocid = ocid_response.json()["ocid"]
+
+        ability_response = await client.get(
+            f"{BASE_URL}/character/ability",
+            headers=HEADERS,
+            params={"ocid": ocid, "date": yesterday},
+        )
+        if ability_response.status_code != 200:
+            raise HTTPException(status_code=502, detail="어빌리티 조회 실패")
+
+        data = ability_response.json()
+
+    return {
+        "character_name": nickname,
+        "date": data.get("date"),
+        "ability_grade": data.get("ability_grade"),
+        "ability_info": data.get("ability_info"),
+        "remain_fame": data.get("remain_fame"),
+        "preset_no": data.get("preset_no"),
+        "ability_preset_1": data.get("ability_preset_1"),
+        "ability_preset_2": data.get("ability_preset_2"),
+        "ability_preset_3": data.get("ability_preset_3"),
+    }
+   
