@@ -242,7 +242,7 @@ async def get_all_info(nickname: str):
     async with httpx.AsyncClient(timeout=15.0) as client:
         ocid = await get_ocid(client, nickname)
 
-        # 8개 API 동시 호출 (일부 실패해도 나머지는 반환)
+        # 12개 API 동시 호출 (일부 실패해도 나머지는 반환)
         results = await asyncio.gather(
             fetch_character_basic(client, ocid, yesterday),
             fetch_character_stat(client, ocid, yesterday),
@@ -252,6 +252,10 @@ async def get_all_info(nickname: str):
             fetch_hyper_stat(client, ocid, yesterday),
             fetch_symbol_equipment(client, ocid, yesterday),
             fetch_ability(client, ocid, yesterday),
+            fetch_set_effect(client, ocid, yesterday),
+            fetch_link_skill(client, ocid, yesterday),
+            fetch_hexamatrix(client, ocid, yesterday),
+            fetch_hexamatrix_stat(client, ocid, yesterday),
             return_exceptions=True,
         )
 
@@ -263,6 +267,10 @@ async def get_all_info(nickname: str):
         hyper_data = results[5] if not isinstance(results[5], Exception) else {}
         symbol_data = results[6] if not isinstance(results[6], Exception) else {}
         ability_data = results[7] if not isinstance(results[7], Exception) else {}
+        set_effect_data = results[8] if not isinstance(results[8], Exception) else {}
+        link_skill_data = results[9] if not isinstance(results[9], Exception) else {}
+        hexa_data = results[10] if not isinstance(results[10], Exception) else {}
+        hexa_stat_data = results[11] if not isinstance(results[11], Exception) else {}
 
     # 스탯 정리
     combat_power = None
@@ -353,6 +361,13 @@ async def get_all_info(nickname: str):
             "preset_2": ability_data.get("ability_preset_2"),
             "preset_3": ability_data.get("ability_preset_3"),
         },
+        # 세트 효과
+        "set_effect": set_effect_data.get("set_effect"),
+        # 링크 스킬
+        "link_skill": link_skill_data.get("character_link_skill"),
+        # HEXA
+        "hexamatrix": hexa_data.get("character_hexa_core_equipment"),
+        "hexamatrix_stat": hexa_stat_data.get("character_hexa_stat_core"),
     }
 
 
