@@ -60,7 +60,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["캐릭터"])
 
 _NEXON_TIMEOUT_SEC = 30.0
-_NEXON_SLEEP_SEC = 0.2
+_NEXON_SLEEP_SEC = 1.0
 
 _NEXON_FETCH_NAMES = (
     "basic",
