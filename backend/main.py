@@ -17,6 +17,9 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
+# httpx의 모든 HTTP 요청 로그는 시끄러우니 조용하게 (WARNING 이상만)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 app = FastAPI(
     title="Sunday Maple API",
     description="썬데이 메이플 예측/이력·캐릭터 검색 API",
