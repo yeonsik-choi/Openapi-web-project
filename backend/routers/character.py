@@ -8,6 +8,7 @@ import httpx
 from fastapi import APIRouter, HTTPException
 
 from core.config import NEXON_HTTP_TRUST_ENV
+from core.cache import get_cache
 from schemas.character_all import (
     AbilityPresetUi,
     ArcaneRow,
@@ -61,9 +62,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["캐릭터"])
 
 _NEXON_TIMEOUT_SEC = 10.0
-_NEXON_SLEEP_SEC = 1.0
+_NEXON_SLEEP_SEC = 0.2
 _NEXON_MAX_RETRIES = 2
 _NEXON_RETRY_BASE_SEC = 0.5
+_CACHE_TTL_SEC = 1800  # 30분
 
 
 async def _with_retry(coro_factory, *, name: str = ""):
@@ -1139,6 +1141,13 @@ def _set_effects_ui(payload: dict) -> list[SetEffectUi]:
     },
 )
 async def get_character_info(nickname: str):
+    cache = get_cache()
+    cache_key = f"character:{nickname}"
+    cached = await cache.get(cache_key)
+    if cached is not None:
+        logger.info("cache hit: character %s", nickname)
+        return cached
+
     require_nexon_api_key()
     yesterday = get_yesterday()
 
@@ -1282,7 +1291,7 @@ async def get_character_info(nickname: str):
 
     ep0, ep1, ep2 = equipment_presets[0], equipment_presets[1], equipment_presets[2]
 
-    return CharacterResponse(
+    response = CharacterResponse(
         imageUrl=basic.get("character_image"),
         name=basic.get("character_name"),
         level=_coerce_level(basic.get("character_level")),
@@ -1310,3 +1319,9 @@ async def get_character_info(nickname: str):
         linkSkillPresets=link_skill_presets,
         union=union_detail,
     )
+
+    # 핵심 데이터(이름)가 있을 때만 캐시 저장 - 부분 실패한 응답은 캐싱하지 않음
+    if response.name:
+        await cache.set(cache_key, response, _CACHE_TTL_SEC)
+
+    return response
