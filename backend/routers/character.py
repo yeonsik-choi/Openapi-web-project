@@ -291,18 +291,20 @@ def _rank_int(payload: dict) -> int | None:
         return None
 
 
-_UNION_BLOCK_COORD_KEYS = frozenset(
+_UNION_BLOCK_DROP_KEYS = frozenset(
     (
         "block_control_point",
         "blockControlPoint",
         "block_position",
         "blockPosition",
+        "block_type",
+        "blockType",
     )
 )
 
 
 def _union_block_without_coords(block: dict[str, Any]) -> dict[str, Any]:
-    return {k: v for k, v in block.items() if k not in _UNION_BLOCK_COORD_KEYS}
+    return {k: v for k, v in block.items() if k not in _UNION_BLOCK_DROP_KEYS}
 
 
 def _build_preset(preset_data: dict | None) -> UnionPresetUi:
@@ -579,11 +581,34 @@ def _deep_coerce_equip_numbers(obj: Any) -> Any:
     return _scalar_to_json_number(obj)
 
 
+_EQUIP_OPTION_USED_KEYS = frozenset(
+    (
+        "str",
+        "dex",
+        "int",
+        "luk",
+        "maxHp",
+        "maxMp",
+        "attackPower",
+        "magicPower",
+        "armor",
+        "bossDamage",
+        "ignoreMonsterArmor",
+        "allStat",
+    )
+)
+
+
+def _filter_equip_option_keys(d: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in d.items() if k in _EQUIP_OPTION_USED_KEYS}
+
+
 def _camel_equip_subdoc(item: dict, snake: str, camel: str) -> dict[str, Any] | None:
     d = _subdoc(item, snake, camel)
     if d is None:
         return None
-    return _deep_coerce_equip_numbers(_deep_camelize_keys(d))
+    camelized = _deep_coerce_equip_numbers(_deep_camelize_keys(d))
+    return _filter_equip_option_keys(camelized) if isinstance(camelized, dict) else camelized
 
 
 def _cuttable_count_ui(item: dict) -> int | None:
@@ -631,11 +656,12 @@ def _to_equip(item: dict) -> EquipUi:
     total_opt = _total_option_ui(item)
     apots = add_pots if add_pots else None
 
-    base_option_cam = (
-        _deep_coerce_equip_numbers(_deep_camelize_keys(base_block))
-        if base_block
-        else None
-    )
+    base_option_cam: dict[str, Any] | None = None
+    if base_block:
+        camelized = _deep_coerce_equip_numbers(_deep_camelize_keys(base_block))
+        base_option_cam = (
+            _filter_equip_option_keys(camelized) if isinstance(camelized, dict) else camelized
+        )
 
     return EquipUi(
         slot=_equip_slot(item) or None,
