@@ -60,7 +60,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["캐릭터"])
 
 _NEXON_TIMEOUT_SEC = 30.0
-_NEXON_SLEEP_SEC = 1.0
+_NEXON_SLEEP_SEC = 0.2
 
 _NEXON_FETCH_NAMES = (
     "basic",
@@ -138,38 +138,6 @@ _UNION_CRYSTAL_OPTION_KEYS = (
     ("crystal_option_name_2", "crystalOptionName2"),
     ("crystal_option_name_3", "crystalOptionName3"),
 )
-_INNER_STAT_SHORT = {
-    "유니온 최대 HP": "HP",
-    "유니온 DEX": "DEX",
-    "유니온 STR": "STR",
-    "유니온 INT": "INT",
-    "유니온 LUK": "LUK",
-    "유니온 최대 MP": "MP",
-    "유니온 마력": "마력",
-    "유니온 공격력": "공격력",
-}
-
-
-def _shorten_inner_stat_effect(text: str) -> str:
-    if not text:
-        return text
-    s = text
-    for long_k, short_v in sorted(
-        _INNER_STAT_SHORT.items(), key=lambda kv: -len(kv[0])
-    ):
-        s = s.replace(long_k, short_v)
-    return s
-
-
-_CRYSTAL_NAME_PREFIX = re.compile(r"^크리스탈\s*:\s*")
-
-
-def _crystal_display_name(raw: str | None) -> str:
-    if not raw:
-        return ""
-    s = str(raw).strip()
-    t = _CRYSTAL_NAME_PREFIX.sub("", s).strip()
-    return t if t else s
 
 
 def _nget(d: dict | None, *keys: str) -> Any:
@@ -350,24 +318,12 @@ def _build_preset(preset_data: dict | None) -> UnionPresetUi:
         key=lambda b: _parse_int(_nget(b, "block_level", "blockLevel")) or 0,
         reverse=True,
     )
-    inner_raw = _nget(preset_data, "union_inner_stat", "unionInnerStat")
-    inner_out: list[dict[str, Any]] = []
-    if isinstance(inner_raw, list):
-        for r in inner_raw:
-            if not isinstance(r, dict):
-                continue
-            d = dict(r)
-            for ek in ("stat_field_effect", "statFieldEffect"):
-                if ek in d and isinstance(d[ek], str):
-                    d[ek] = _shorten_inner_stat_effect(d[ek])
-            inner_out.append(d)
     rs = _nget(preset_data, "union_raider_stat", "unionRaiderStat")
     raider_stats = [str(x) for x in rs] if isinstance(rs, list) else []
     occ = _nget(preset_data, "union_occupied_stat", "unionOccupiedStat")
     occupied = [str(x) for x in occ] if isinstance(occ, list) else []
     return UnionPresetUi(
         blocks=blocks_out,
-        innerStats=inner_out,
         raiderStats=raider_stats,
         occupiedStats=occupied,
     )
@@ -396,15 +352,7 @@ def _build_union_artifact_section(artifact: dict) -> UnionArtifactSection:
                 for sk, ck in _UNION_CRYSTAL_OPTION_KEYS
                 if (t := _nexon_str(c, sk, ck))
             ]
-            crystals.append(
-                UnionArtifactCrystalRow(
-                    name=_crystal_display_name(_nexon_str(c, "name")),
-                    level=_parse_int(c.get("level")),
-                    validityFlag=_nexon_str(c, "validity_flag", "validityFlag"),
-                    date_expire=_nexon_str(c, "date_expire", "dateExpire"),
-                    options=opts,
-                )
-            )
+            crystals.append(UnionArtifactCrystalRow(options=opts))
     return UnionArtifactSection(effects=effects, crystals=crystals)
 
 
@@ -425,7 +373,6 @@ def _build_union_champion_section(champion: dict) -> UnionChampionSection:
         for row in raw_slots:
             if not isinstance(row, dict):
                 continue
-            badges_raw = _nget(row, "champion_badge_info", "championBadgeInfo")
             slot_n = _parse_int(_nget(row, "champion_slot", "championSlot"))
             slots.append(
                 UnionChampionSlotRow(
@@ -433,7 +380,6 @@ def _build_union_champion_section(champion: dict) -> UnionChampionSection:
                     championSlot=slot_n,
                     championGrade=_nexon_str(row, "champion_grade", "championGrade"),
                     championClass=_nexon_str(row, "champion_class", "championClass"),
-                    badgeEffects=_champion_badge_stat_lines(badges_raw),
                 )
             )
     raw_total = _nget(champion, "champion_badge_total_info", "championBadgeTotalInfo")
@@ -450,7 +396,6 @@ def _assemble_union_response(
     champion: dict,
 ) -> UnionResponse:
     header = UnionHeader(
-        grade=_nexon_str(union_basic, "union_grade", "unionGrade"),
         level=_parse_int(_nget(union_basic, "union_level", "unionLevel")),
         artifactLevel=_parse_int(
             _nget(union_basic, "union_artifact_level", "unionArtifactLevel")
@@ -712,9 +657,6 @@ def _to_equip(item: dict) -> EquipUi:
         starforce_option=_camel_equip_subdoc(
             item, "item_starforce_option", "itemStarforceOption"
         ),
-        scroll_upgradeable_count=_parse_int(
-            _nexon_str(item, "scroll_upgradeable_count", "scrollUpgradeableCount")
-        ),
         cuttable_count=_cuttable_count_ui(item),
         soul_name=_nexon_str(item, "soul_name", "soulName"),
         soul_option=_nexon_str(item, "soul_option", "soulOption"),
@@ -780,11 +722,6 @@ def _job_skill_ui_list_from_any(v: Any) -> list[JobSkillUi]:
 def _link_skill_presets_ui(link_raw: dict) -> list[LinkSkillPresetUi]:
     presets: list[LinkSkillPresetUi] = []
     for i in (1, 2, 3):
-        owned = _nget(
-            link_raw,
-            f"character_owned_link_skill_preset_{i}",
-            f"characterOwnedLinkSkillPreset{i}",
-        )
         skills = _nget(
             link_raw,
             f"character_link_skill_preset_{i}",
@@ -793,7 +730,6 @@ def _link_skill_presets_ui(link_raw: dict) -> list[LinkSkillPresetUi]:
         presets.append(
             LinkSkillPresetUi(
                 presetNo=i,
-                ownedSkill=_job_skill_ui_list_from_any(owned),
                 skills=_job_skill_ui_list_from_any(skills),
             )
         )

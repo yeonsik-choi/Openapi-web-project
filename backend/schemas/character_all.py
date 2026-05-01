@@ -85,9 +85,6 @@ class EquipUi(BaseModel):
         default=None, serialization_alias="starforceOption"
     )
 
-    scroll_upgradeable_count: int | None = Field(
-        default=None, serialization_alias="scrollUpgradeableCount"
-    )
     cuttable_count: int | None = Field(default=None, serialization_alias="cuttableCount")
     soul_name: str | None = Field(default=None, serialization_alias="soulName")
     soul_option: str | None = Field(default=None, serialization_alias="soulOption")
@@ -97,7 +94,6 @@ class UnionPresetUi(BaseModel):
     model_config = _MODEL
 
     blocks: list[dict[str, Any]] = Field(default_factory=list)
-    innerStats: list[dict[str, Any]] = Field(default_factory=list)
     raiderStats: list[str] = Field(default_factory=list)
     occupiedStats: list[str] = Field(default_factory=list)
 
@@ -105,7 +101,6 @@ class UnionPresetUi(BaseModel):
 class UnionHeader(BaseModel):
     model_config = _MODEL
 
-    grade: str | None = None
     level: int | None = None
     artifactLevel: int | None = None
 
@@ -117,7 +112,6 @@ class UnionChampionSlotRow(BaseModel):
     championSlot: int | None = None
     championGrade: str | None = None
     championClass: str | None = None
-    badgeEffects: list[str] = Field(default_factory=list)
 
 
 class UnionChampionSection(BaseModel):
@@ -137,10 +131,6 @@ class UnionArtifactEffectRow(BaseModel):
 class UnionArtifactCrystalRow(BaseModel):
     model_config = _MODEL
 
-    name: str
-    level: int | None = None
-    validityFlag: str | None = None
-    date_expire: str | None = None
     options: list[str] = Field(default_factory=list)
 
 
@@ -175,7 +165,6 @@ class LinkSkillPresetUi(BaseModel):
     model_config = _MODEL
 
     presetNo: int = 0
-    ownedSkill: list[JobSkillUi] = Field(default_factory=list)
     skills: list[JobSkillUi] = Field(default_factory=list)
 
 
