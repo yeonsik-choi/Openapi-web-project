@@ -26,14 +26,29 @@ def raise_nexon_request_error(exc: httpx.RequestError) -> None:
     ) from exc
 
 
+# 재시도 가능한 일시적 에러 (서버 측 문제 또는 rate limit)
+NEXON_TRANSIENT_CODES = frozenset({429, 500, 502, 503, 504})
+
+# 영구 에러 (재시도해도 같은 결과)
+NEXON_PERMANENT_CODES = frozenset({400, 401, 403, 404})
+
+
 def _raise_for_failed_nexon(response: httpx.Response, error_detail: str) -> None:
     code = response.status_code
     body_preview = ((response.text or "").strip())[:300]
     detail = f"{error_detail} (nexon HTTP {code})"
     if body_preview:
         detail = f"{detail}: {body_preview}"
-    if code == 429:
-        raise HTTPException(status_code=429, detail=detail)
+
+    # 일시 에러: 원본 코드 유지하여 호출부에서 재시도 판단 가능
+    if code in NEXON_TRANSIENT_CODES:
+        raise HTTPException(status_code=code, detail=detail)
+
+    # 영구 에러: 사용자 잘못이거나 영구적 차단 — 재시도 무의미
+    if code in NEXON_PERMANENT_CODES:
+        raise HTTPException(status_code=code, detail=detail)
+
+    # 그 외 알 수 없는 코드 → 502로 통합
     raise HTTPException(status_code=502, detail=detail)
 
 

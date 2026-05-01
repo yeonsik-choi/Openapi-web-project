@@ -34,6 +34,7 @@ from schemas.character_all import (
     UnionResponse,
 )
 from services.nexon_api import (
+    NEXON_TRANSIENT_CODES,
     fetch_character_ability,
     fetch_character_basic,
     fetch_character_hexamatrix,
@@ -59,8 +60,47 @@ from services.nexon_api import (
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["캐릭터"])
 
-_NEXON_TIMEOUT_SEC = 30.0
+_NEXON_TIMEOUT_SEC = 10.0
 _NEXON_SLEEP_SEC = 1.0
+_NEXON_MAX_RETRIES = 2
+_NEXON_RETRY_BASE_SEC = 0.5
+
+
+async def _with_retry(coro_factory, *, name: str = ""):
+    """일시적 에러(429, 5xx, 타임아웃)는 지수 백오프로 재시도. 영구 에러는 즉시 raise."""
+    last_exc: Exception | None = None
+    for attempt in range(_NEXON_MAX_RETRIES + 1):
+        try:
+            return await coro_factory()
+        except HTTPException as e:
+            last_exc = e
+            if e.status_code in NEXON_TRANSIENT_CODES and attempt < _NEXON_MAX_RETRIES:
+                wait = _NEXON_RETRY_BASE_SEC * (2 ** attempt)
+                logger.info(
+                    "nexon retry %s after HTTP %s (attempt %d/%d, wait %.1fs)",
+                    name, e.status_code, attempt + 1, _NEXON_MAX_RETRIES, wait,
+                )
+                await asyncio.sleep(wait)
+                continue
+            raise
+        except httpx.TimeoutException as e:
+            last_exc = e
+            if attempt < _NEXON_MAX_RETRIES:
+                wait = _NEXON_RETRY_BASE_SEC * (2 ** attempt)
+                logger.info(
+                    "nexon retry %s after timeout (attempt %d/%d, wait %.1fs)",
+                    name, attempt + 1, _NEXON_MAX_RETRIES, wait,
+                )
+                await asyncio.sleep(wait)
+                continue
+            raise HTTPException(
+                status_code=504,
+                detail=f"넥슨 API 타임아웃 ({name})",
+            ) from e
+    # 이론상 도달 불가 (위에서 raise됨)
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("unreachable")
 
 _NEXON_FETCH_NAMES = (
     "basic",
@@ -1107,41 +1147,44 @@ async def get_character_info(nickname: str):
             timeout=_NEXON_TIMEOUT_SEC,
             trust_env=NEXON_HTTP_TRUST_ENV,
         ) as client:
-            ocid = await get_ocid(client, nickname)
+            ocid = await _with_retry(
+                lambda: get_ocid(client, nickname),
+                name="ocid",
+            )
             batch1 = await asyncio.gather(
-                fetch_character_basic(client, ocid, yesterday),
-                fetch_character_stat(client, ocid, yesterday),
-                fetch_character_ability(client, ocid, yesterday),
+                _with_retry(lambda: fetch_character_basic(client, ocid, yesterday), name="basic"),
+                _with_retry(lambda: fetch_character_stat(client, ocid, yesterday), name="stat"),
+                _with_retry(lambda: fetch_character_ability(client, ocid, yesterday), name="ability"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch2a = await asyncio.gather(
-                fetch_item_equipment(client, ocid, yesterday),
-                fetch_character_popularity(client, ocid, yesterday),
-                fetch_union(client, ocid, yesterday),
-                fetch_overall_ranking(client, ocid, yesterday),
-                fetch_set_effect(client, ocid, yesterday),
+                _with_retry(lambda: fetch_item_equipment(client, ocid, yesterday), name="item_equipment"),
+                _with_retry(lambda: fetch_character_popularity(client, ocid, yesterday), name="popularity"),
+                _with_retry(lambda: fetch_union(client, ocid, yesterday), name="union"),
+                _with_retry(lambda: fetch_overall_ranking(client, ocid, yesterday), name="ranking"),
+                _with_retry(lambda: fetch_set_effect(client, ocid, yesterday), name="set_effect"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch2b = await asyncio.gather(
-                fetch_union_raider(client, ocid, yesterday),
-                fetch_union_artifact(client, ocid, yesterday),
-                fetch_union_champion(client, ocid, yesterday),
+                _with_retry(lambda: fetch_union_raider(client, ocid, yesterday), name="union_raider"),
+                _with_retry(lambda: fetch_union_artifact(client, ocid, yesterday), name="union_artifact"),
+                _with_retry(lambda: fetch_union_champion(client, ocid, yesterday), name="union_champion"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch3 = await asyncio.gather(
-                fetch_character_skill(client, ocid, yesterday, "6"),
-                fetch_character_skill(client, ocid, yesterday, "5"),
-                fetch_character_hexamatrix_stat(client, ocid, yesterday),
+                _with_retry(lambda: fetch_character_skill(client, ocid, yesterday, "6"), name="skill_grade_6"),
+                _with_retry(lambda: fetch_character_skill(client, ocid, yesterday, "5"), name="skill_grade_5"),
+                _with_retry(lambda: fetch_character_hexamatrix_stat(client, ocid, yesterday), name="hexamatrix_stat"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch4 = await asyncio.gather(
-                fetch_character_hexamatrix(client, ocid, yesterday),
-                fetch_character_vmatrix(client, ocid, yesterday),
-                fetch_character_link_skill(client, ocid, yesterday),
+                _with_retry(lambda: fetch_character_hexamatrix(client, ocid, yesterday), name="hexamatrix"),
+                _with_retry(lambda: fetch_character_vmatrix(client, ocid, yesterday), name="vmatrix"),
+                _with_retry(lambda: fetch_character_link_skill(client, ocid, yesterday), name="link_skill"),
                 return_exceptions=True,
             )
             results = list(batch1) + [
