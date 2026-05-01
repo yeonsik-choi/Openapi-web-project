@@ -1,3 +1,5 @@
+import logging
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +10,12 @@ from routers.character import router as character_router
 from routers.notice import router as notice_router
 
 load_dotenv()
+
+# 우리 코드의 logger.info(...) 메시지가 Render 로그에 보이게 함
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 
 app = FastAPI(
     title="Sunday Maple API",
