@@ -77,6 +77,7 @@
     .char-header::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 30% 50%, rgba(255,107,0,0.06) 0%, transparent 60%); pointer-events:none; }
     .char-img-wrap { flex-shrink: 0; width: 140px; height: 160px; background: rgba(255,235,210,0.5); border-radius: 16px; border: 2px solid rgba(255,165,0,0.3); display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .char-img-wrap img.char-avatar { image-rendering: pixelated; width: 400px; height: auto; filter: drop-shadow(0 4px 12px rgba(255,107,0,0.3));}
+    .char-empty-img { color: rgba(92,46,0,0.5); font-size: 0.8rem; font-weight: 700; text-align: center; }
     
     .char-info { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; gap: 10px; }
     .char-name-row { display: flex; align-items: baseline; gap: 12px; }
@@ -407,21 +408,22 @@
         </div>
       </div>
 
-      <div v-else-if="char">
+      <div v-else-if="char && char.name">
         <div class="char-header">
           <div class="char-img-wrap">
-            <img class="char-avatar" :src="char.imageUrl" alt="캐릭터" />
+            <img v-if="char.imageUrl" class="char-avatar" :src="char.imageUrl" alt="캐릭터" />
+            <div v-else class="char-empty-img">이미지 없음</div>
           </div>
           
           <div class="char-info">
             <div class="char-name-row">
               <div class="char-name">{{ char.name }}</div>
-              <div class="char-level">Lv.{{ char.level }}</div>
+              <div class="char-level" v-if="char.level">Lv.{{ char.level }}</div>
             </div>
             
             <div class="char-tags">
-              <span class="badge badge-world">{{ char.world }}</span>
-              <span class="badge badge-job">{{ char.job }}</span>
+              <span class="badge badge-world" v-if="char.world">{{ char.world }}</span>
+              <span class="badge badge-job" v-if="char.job">{{ char.job }}</span>
             </div>
 
             <div class="char-meta-grid">
@@ -444,8 +446,8 @@
             </div>
 
             <div class="exp-bar-wrap">
-              <div class="exp-label">경험치 {{ char.expPercent }}%</div>
-              <div class="exp-bar"><div class="exp-fill" :style="{ width: char.expPercent + '%' }"></div></div>
+              <div class="exp-label">경험치 {{ char.expPercent || 0 }}%</div>
+              <div class="exp-bar"><div class="exp-fill" :style="{ width: (char.expPercent || 0) + '%' }"></div></div>
             </div>
           </div>
         </div>
@@ -464,7 +466,7 @@
                 <div class="combat-power-value">{{ char.combatPower || '-' }}</div>
               </div>
 
-              <div class="info-card">
+              <div class="info-card" v-if="char.arcane">
                 <div class="section-title" style="margin-bottom:11px;">아케인 / 어센틱</div>
                 <div class="info-row" v-for="r in char.arcane" :key="r.k">
                   <span class="info-key">{{ r.k }}</span><span class="info-val highlight">{{ r.v }}</span>
@@ -737,11 +739,11 @@
               <div class="union-card-title">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   유니온 아티팩트
-                  <span style="font-size: 0.9rem; font-weight: 700; color: rgba(92,46,0,0.6);">Lv.{{ char.union.header.artifactLevel || 0 }}</span>
+                  <span style="font-size: 0.9rem; font-weight: 700; color: rgba(92,46,0,0.6);" v-if="char.union.header">Lv.{{ char.union.header.artifactLevel || 0 }}</span>
                 </div>
               </div>
               <div class="artifact-layout">
-                <div class="artifact-crystals" v-if="char.union.artifact && char.union.artifact.crystals.length > 0">
+                <div class="artifact-crystals" v-if="char.union.artifact && char.union.artifact.crystals && char.union.artifact.crystals.length > 0">
                   <div class="artifact-crystal-card" v-for="(crystal, idx) in char.union.artifact.crystals" :key="idx">
                     <div class="artifact-stars"><span v-for="i in 5" :key="i">★</span></div>
                     <div class="artifact-options">
@@ -751,7 +753,7 @@
                 </div>
                 <div v-else style="font-size: 0.85rem; color: #888; text-align: center; padding: 40px; background: #fafafa; border-radius: 8px;">장착된 크리스탈이 없습니다.</div>
 
-                <div class="union-effect-box" v-if="char.union.artifact && char.union.artifact.effects.length > 0">
+                <div class="union-effect-box" v-if="char.union.artifact && char.union.artifact.effects && char.union.artifact.effects.length > 0">
                   <h4>아티팩트 효과</h4>
                   <ul class="union-effect-ul">
                     <li v-for="(eff, idx) in char.union.artifact.effects" :key="idx">
@@ -765,7 +767,7 @@
 
             <div class="union-card">
               <div class="union-card-title">유니온 챔피언</div>
-              <div class="champion-layout" v-if="char.union && char.union.champion && char.union.champion.slots.length > 0">
+              <div class="champion-layout" v-if="char.union && char.union.champion && char.union.champion.slots && char.union.champion.slots.length > 0">
                 <div class="champion-list">
                   <template v-for="(champ, idx) in championSlotsArray" :key="idx">
                     <div class="champion-card" v-if="champ">
@@ -779,7 +781,7 @@
                 
                 <div class="union-effect-box">
                   <h4>챔피언 휘장 효과</h4>
-                  <ul class="union-effect-ul" v-if="char.union && char.union.champion && char.union.champion.totalBadgeEffects.length > 0">
+                  <ul class="union-effect-ul" v-if="char.union && char.union.champion && char.union.champion.totalBadgeEffects && char.union.champion.totalBadgeEffects.length > 0">
                     <li v-for="(eff, idx) in char.union.champion.totalBadgeEffects" :key="idx">{{ eff }}</li>
                   </ul>
                   <div v-else style="font-size: 0.85rem; color: #888; margin-top: 8px;">적용중인 효과가 없습니다.</div>
@@ -1148,7 +1150,14 @@ createApp({
           throw new Error(errData.detail || '캐릭터 정보를 불러오는데 실패했습니다.');
         }
         
-        char.value = await response.json();
+        const fetchedData = await response.json();
+
+        // ✔️ [추가된 부분] API 응답은 정상이지만 내부 데이터가 실질적으로 빈 경우 처리 (미접속 등)
+        if (!fetchedData.name && !fetchedData.level) {
+            throw new Error('조회할 수 없는 캐릭터입니다. (미접속, 닉네임 변경 등)');
+        }
+        
+        char.value = fetchedData;
 
         if (char.value.abilityPresetNo) {
             activeAbilityPreset.value = String(char.value.abilityPresetNo);
@@ -1161,7 +1170,12 @@ createApp({
         }
         
       } catch (e) {
-        error.value = e.message;
+        // 백엔드에서 넘어온 에러 메시지에 특정 키워드가 포함되어 있는지 확인
+        if (e.message.includes('OPENAPI00004') || e.message.includes('valid parameter')) {
+          error.value = '올바르지 않은 닉네임 형식이거나 조회할 수 없는 캐릭터입니다.';
+        } else {
+          error.value = e.message;
+        }
       } finally {
         loading.value = false;
       }
