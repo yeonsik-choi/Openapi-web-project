@@ -385,7 +385,7 @@ createApp({
     // 컴포넌트 마운트 시 백엔드 API에서 데이터를 가져옵니다.
     onMounted(async () => {
       try {
-        const res = await fetch('https://openapi-web-project.onrender.com/api/notices');
+        const res = await fetch('https://maplessunday.onrender.com/api/notices');
         
         if (!res.ok) {
           throw new Error('공지사항 데이터를 불러오는데 실패했습니다.');
