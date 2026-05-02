@@ -338,19 +338,34 @@ createApp({
     const nextMiracleDayDate = ref('2026.05.10');
 
     const predictions = ref([
-      { rank: 1, probability: '51.8%', benefit: '21성 이하에서 스타포스 강화 시 파괴 확률 30% 감소 (샤이닝)', note: '28일 경과' },
-      { rank: 2, probability: '40.2%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '21일 경과' },
-      { rank: 3, probability: '37.1%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '7일 경과' },
-      { rank: 4, probability: '35.1%', benefit: '콤보킬 경험치 획득량 +300%', note: '42일 경과' },
-      { rank: 5, probability: '29.0%', benefit: '룬 경험치 버프 효과 +100%', note: '42일 경과' },
+      { rank: 1, probability: '56.3%', benefit: '미라클 타임', note: '10주 경과' },
+      { rank: 2, probability: '53.4%', benefit: '소울 조각 사용 시 위대한 소울 획득 확률 5배', note: '9주 경과' },
+      { rank: 3, probability: '45.6%', benefit: '어빌리티 재설정 비용 50% 할인', note: '4주 경과' },
+      { rank: 4, probability: '45.4%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '5주 경과' },
+      { rank: 5, probability: '44.9%', benefit: '트레져 헌터 경험치 3배', note: '5주 경과' },
     ]);
 
     const recentSundays = ref([
-      { date: '4월 12일', benefit: '몬스터 파크 클리어 경험치 추가 250%, 소울 조각 사용 시 위대한 소울 획득 확률 5배' },
-      { date: '4월 5일', benefit: '어빌리티 재설정 비용 50% 할인, V 매트릭스 코어 젬스톤 획득 확률 2배' },
-      { date: '3월 29일', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, 몬스터 컬렉션 등록 확률 100% 추가' },
-      { date: '3월 22일', benefit: '스타포스 5, 10, 15성에서 강화 시 성공 확률 100%' },
-      { date: '3월 15일', benefit: '21성 이하에서 스타포스 강화 시 파괴 확률 30% 감소 (샤이닝)' },
+      { 
+        date: '4월 26일', 
+        benefit: '샤이닝 스타포스 타임, 몬스터 파크 클리어 경험치 추가 250%' 
+      },
+      { 
+        date: '4월 19일', 
+        benefit: '[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가, 주문의 흔적 강화 비용 50% 할인, 몬스터 파크 클리어 경험치 추가 250%' 
+      },
+      { 
+        date: '4월 12일', 
+        benefit: '어빌리티 재설정 비용 50% 할인, 몬스터 파크 클리어 경험치 추가 250%' 
+      },
+      { 
+        date: '4월 5일', 
+        benefit: '트레져 헌터 경험치 3배, 사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가' 
+      },
+      { 
+        date: '3월 29일', 
+        benefit: '샤이닝 스타포스 타임' 
+      }
     ]);
 
     function reSearch() {
