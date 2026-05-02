@@ -74,7 +74,7 @@
       border: 1px solid rgba(255,165,0,0.3); border-radius: 20px; padding: 36px 40px;
       box-shadow: 0 12px 40px rgba(255,165,0,0.12), 0 0 0 1px rgba(255,255,255,0.5) inset;
       width: 100%; max-width: 580px; backdrop-filter: blur(16px);
-      margin-bottom: 60px; /* 게시판과의 간격 */
+      margin-bottom: 60px;
     }
     .search-label { font-size: 0.78rem; font-weight: 800; color: var(--maple-orange); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; display: block; }
     .search-row { display: flex; gap: 12px; }
@@ -87,6 +87,27 @@
     .search-btn { padding: 14px 26px; background: linear-gradient(135deg, var(--maple-orange), #FF8C00); border: none; border-radius: 12px; color: white; font-family: 'Black Han Sans', sans-serif; font-size: 1rem; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 16px rgba(255,107,0,0.35); transition: transform .15s, box-shadow .15s; }
     .search-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,0,0.5); }
     .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── 최근 검색어 스타일 추가 ── */
+    .recent-searches { margin-top: 20px; display: flex; align-items: flex-start; gap: 12px; }
+    .recent-label { font-size: 0.8rem; color: rgba(92,46,0,0.5); font-weight: 700; white-space: nowrap; margin-top: 8px; }
+    .recent-tags { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+    .recent-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255, 165, 0, 0.08); border: 1px solid rgba(255, 165, 0, 0.25);
+      color: var(--maple-orange); font-size: 0.82rem; font-weight: 600;
+      padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .recent-tag:hover { 
+      background: var(--maple-orange); color: white; 
+      border-color: var(--maple-orange); box-shadow: 0 4px 10px rgba(255,165,0,0.2); 
+    }
+    .recent-del {
+      background: none; border: none; color: rgba(255, 165, 0, 0.5); font-size: 0.75rem; font-weight: bold;
+      cursor: pointer; padding: 0; display: flex; align-items: center; transition: color 0.2s; outline: none;
+    }
+    .recent-tag:hover .recent-del { color: rgba(255, 255, 255, 0.8); }
+    .recent-del:hover { color: #fff !important; transform: scale(1.1); }
 
     /* ── 하단 게시판 (알림, 공지, 이벤트, 캐시샵) ── */
     .board-container {
@@ -163,7 +184,6 @@
     .gallery-wrap {
       display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px;
     }
-    /* 웹킷 스크롤바 숨김 */
     .gallery-wrap::-webkit-scrollbar { height: 6px; }
     .gallery-wrap::-webkit-scrollbar-thumb { background: rgba(255,165,0,0.3); border-radius: 4px; }
     
@@ -186,7 +206,6 @@
     .gallery-dday { font-size: 0.7rem; color: #E74C3C; font-weight: 800; }
     .gallery-ongoing { color: #27AE60; font-size: 0.7rem; font-weight: 800; }
 
-
     /* ── Footer ── */
     .site-footer { position: relative; z-index: 10; flex-shrink: 0; background: linear-gradient(180deg, rgba(255,248,236,0.9) 0%, #FFFDF9 100%); border-top: 1px solid rgba(255,165,0,0.25); display: flex; flex-direction: column; align-items: center; }
     .footer-inner { width: 100%; max-width: 1100px; padding: 0 24px; }
@@ -195,14 +214,8 @@
     .footer-col-title::before { content:''; display:inline-block; width:3px; height:12px; background: var(--maple-yellow); border-radius: 2px; }
     .footer-col p, .footer-col a { font-size: 0.78rem; color: rgba(92,46,0,0.65); font-weight: 500; line-height: 1.9; display: block; text-decoration: none; transition: color .2s; }
     .footer-col a:hover { color: var(--maple-orange); }
-    .footer-socials { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
-    .social-btn { width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 1px solid rgba(255,165,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; cursor: pointer; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: background .2s, border-color .2s, transform .15s; }
-    .social-btn:hover { background: rgba(255,165,0,0.1); border-color: var(--maple-orange); transform: translateY(-2px); }
     .footer-bottom { border-top: 1px solid rgba(255,165,0,0.15); padding: 16px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .footer-bottom p { font-size: 0.72rem; color: rgba(92,46,0,0.5); font-weight: 500; }
-    .footer-bottom-links { display: flex; gap: 16px; }
-    .footer-bottom-links a { font-size: 0.72rem; color: rgba(92,46,0,0.6); font-weight: 700; text-decoration: none; transition: color .2s; }
-    .footer-bottom-links a:hover { color: var(--maple-orange); }
   </style>
 </head>
 <body>
@@ -259,6 +272,20 @@
         <input class="search-input" v-model="mainNickname" placeholder="닉네임 검색" @keyup.enter="search(mainNickname)" />
         <button class="search-btn" @click="search(mainNickname)" :disabled="!mainNickname.trim()">조회</button>
       </div>
+
+      <!-- 최근 검색어 영역 추가 -->
+      <div class="recent-searches" v-if="recentHistory.length > 0">
+        <span class="recent-label">최근 검색어</span>
+        <div class="recent-tags">
+          <span class="recent-tag" v-for="name in recentHistory" :key="name" @click="search(name)">
+            {{ name }}
+            <!-- click.stop으로 부모의 @click 이벤트(검색)가 실행되는 것을 막고 삭제만 수행 -->
+            <button class="recent-del" @click.stop="removeSearch(name)">✕</button>
+          </span>
+        </div>
+      </div>
+      <!-- // 최근 검색어 영역 -->
+
     </div>
 
     <div class="board-container">
@@ -372,18 +399,29 @@ const { createApp, ref, onMounted } = Vue;
 
 createApp({
   setup() {
-    // 닉네임 변수를 2개로 분리
     const headerNickname = ref('');
     const mainNickname = ref('');
     
-    // 데이터를 담을 빈 배열 생성
+    // 최근 검색어 상태 관리
+    const recentHistory = ref([]);
+    
     const noticeList = ref([]);
     const updateList = ref([]);
     const eventList = ref([]);
     const cashshopList = ref([]);
 
-    // 컴포넌트 마운트 시 백엔드 API에서 데이터를 가져옵니다.
     onMounted(async () => {
+      // 1. 로컬 스토리지에서 최근 검색어 불러오기
+      const storedHistory = localStorage.getItem('mapleSearchHistory');
+      if (storedHistory) {
+        try {
+          recentHistory.value = JSON.parse(storedHistory);
+        } catch (e) {
+          console.error('검색 기록을 파싱하는 중 오류가 발생했습니다:', e);
+        }
+      }
+
+      // 2. 백엔드 API에서 게시판 데이터 가져오기
       try {
         const res = await fetch('https://maplessunday.onrender.com/api/notices');
         
@@ -401,27 +439,47 @@ createApp({
       }
     });
 
-    // 어떤 입력창에서 검색했는지 값을 전달받아 처리하도록 수정
+    // 닉네임 검색 및 로컬 스토리지 저장 로직
     function search(targetNickname) {
       const name = targetNickname.trim();
       if (name) {
+        // 기존 기록에서 동일한 검색어가 있다면 제거 (항상 최신 위치로 올리기 위함)
+        let history = recentHistory.value.filter(n => n !== name);
+        
+        // 맨 앞에 새 검색어 추가
+        history.unshift(name);
+        
+        // 최근 검색어는 최대 5개까지만 유지
+        if (history.length > 5) {
+          history.pop();
+        }
+        
+        // 상태 업데이트 및 로컬 스토리지에 저장
+        recentHistory.value = history;
+        localStorage.setItem('mapleSearchHistory', JSON.stringify(history));
+
+        // 결과 페이지로 이동
         window.location.href = `result.html?name=${encodeURIComponent(name)}`;
       }
     }
 
-    // 날짜 포맷 (예: 2026-04-09T18:02+09:00 -> 4/9)
+    // 최근 검색어 개별 삭제 로직
+    function removeSearch(targetName) {
+      recentHistory.value = recentHistory.value.filter(n => n !== targetName);
+      localStorage.setItem('mapleSearchHistory', JSON.stringify(recentHistory.value));
+    }
+
     function formatDate(dateString) {
       if (!dateString) return '';
       const date = new Date(dateString);
       return `${date.getMonth() + 1}/${date.getDate()}`;
     }
 
-    // 남은 기간 계산기 (D-Day)
     function calculateDday(endDateString) {
       if (!endDateString) return '상시 진행';
       
       const end = new Date(endDateString);
-      const now = new Date(); // 사용자의 현재 시간 기준
+      const now = new Date();
       const diffMs = end - now;
       
       if (diffMs < 0) return '종료됨';
@@ -433,7 +491,9 @@ createApp({
     return { 
       headerNickname,
       mainNickname,
+      recentHistory,
       search,
+      removeSearch,
       noticeList,
       updateList,
       eventList,
