@@ -5,14 +5,14 @@ from schemas.sunday import SundayHistoryItem
 
 
 _TABLE = "calender_sunday"
-_COLS = "Date, Main_Event, Perks_Text"
+_COLS = "date, main_event, perks_text"
 
 
 def _row_to_item(row: dict) -> SundayHistoryItem:
     return SundayHistoryItem(
-        date=str(row.get("Date") or "")[:10],
-        main_event=row.get("Main_Event") or "",
-        perks_text=row.get("Perks_Text") or "",
+        date=str(row.get("date") or "")[:10],
+        main_event=row.get("main_event") or "",
+        perks_text=row.get("perks_text") or "",
     )
 
 
@@ -22,7 +22,7 @@ def fetch_recent_history(limit: int = 5) -> List[SundayHistoryItem]:
     res = (
         sb.table(_TABLE)
         .select(_COLS)
-        .order("Date", desc=True)
+        .order("date", desc=True)
         .limit(limit)
         .execute()
     )
@@ -35,7 +35,7 @@ def fetch_all_history() -> List[SundayHistoryItem]:
     res = (
         sb.table(_TABLE)
         .select(_COLS)
-        .order("Date", desc=True)
+        .order("date", desc=True)
         .execute()
     )
     return [_row_to_item(row) for row in (res.data or [])]
