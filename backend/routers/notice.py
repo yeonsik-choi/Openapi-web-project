@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 
 from core.config import NEXON_API_KEY, NEXON_HTTP_TRUST_ENV
 from core.cache import get_cache
+from core.cache_keys import TTL_NOTICES, k_notices
 from schemas.notice import (
     CashshopNoticeItem,
     EventNoticeItem,
@@ -25,8 +26,6 @@ router = APIRouter(prefix="/api", tags=["공지"])
 
 _NEXON_TIMEOUT_SEC = 30.0
 _FETCH_NAMES = ("notice", "notice_update", "notice_event", "notice_cashshop")
-_CACHE_KEY = "notices:all"
-_CACHE_TTL_SEC = 1800  # 30분
 
 
 def _require_key() -> None:
@@ -149,12 +148,16 @@ def _pick_result(results: list, index: int) -> dict:
     },
 )
 async def get_notices():
-    cache = get_cache()
-    cached = await cache.get(_CACHE_KEY)
-    if cached is not None:
-        logger.info("cache hit: notices")
-        return cached
+    return await get_cache().get_or_set(
+        key=k_notices(),
+        fetcher=_fetch_notices,
+        ttl_sec=TTL_NOTICES,
+        # 4종 모두 비어있는 응답은 캐싱하지 않음 (부분/전체 실패 가드)
+        skip_if=lambda r: not (r.notice or r.update or r.event or r.cashshop),
+    )
 
+
+async def _fetch_notices() -> NoticesResponse:
     _require_key()
     try:
         async with httpx.AsyncClient(
@@ -202,11 +205,9 @@ async def get_notices():
         cash_raw, "cashshop_notice", "cashshopNotice"
     )
 
-    response = NoticesResponse(
+    return NoticesResponse(
         notice=_link_items(notice_rows),
         update=_link_items(update_rows),
         event=_event_items(event_rows),
         cashshop=_cashshop_items(cash_rows),
     )
-    await cache.set(_CACHE_KEY, response, _CACHE_TTL_SEC)
-    return response

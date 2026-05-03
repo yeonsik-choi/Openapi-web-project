@@ -8,8 +8,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
-from typing import Any
+from typing import Any, Awaitable, Callable
+
+logger = logging.getLogger(__name__)
 
 
 class TTLCache:
@@ -43,6 +46,29 @@ class TTLCache:
         """현재 저장된 항목 수 (만료 여부 무관). 디버깅용."""
         async with self._lock:
             return len(self._store)
+
+    async def get_or_set(
+        self,
+        key: str,
+        fetcher: Callable[[], Awaitable[Any]],
+        ttl_sec: float,
+        *,
+        skip_if: Callable[[Any], bool] | None = None,
+    ) -> Any:
+        """캐시에 있으면 반환, 없으면 fetcher 실행 후 저장.
+
+        - fetcher: 캐시 미스 시 호출할 async 함수 (인자 없음, lambda로 감싸 사용)
+        - skip_if: 결과가 이 조건을 만족하면 캐시에 저장하지 않음 (부분 실패 가드용)
+        """
+        cached = await self.get(key)
+        if cached is not None:
+            logger.info("cache hit: %s", key)
+            return cached
+
+        result = await fetcher()
+        if skip_if is None or not skip_if(result):
+            await self.set(key, result, ttl_sec)
+        return result
 
 
 # 전역 캐시 인스턴스 (프로세스당 1개)
