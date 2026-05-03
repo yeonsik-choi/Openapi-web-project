@@ -16,8 +16,8 @@ def k_notices() -> str:
     return "notices:all"
 
 
-def k_sunday_recent(history_limit: int, prediction_top_k: int) -> str:
-    return f"sunday:recent:l{history_limit}:k{prediction_top_k}"
+def k_sunday_recent(history_limit: int) -> str:
+    return f"sunday:recent:l{history_limit}"
 
 
 def k_sunday_all() -> str:
