@@ -57,6 +57,7 @@ def fetch_all_history() -> SundayHistoryAllResponse:
     show_res = (
         sb.table(_SHOW_TABLE)
         .select(_SHOW_COLS)
+        .order("live_show_day", desc=True)
         .execute()
     )
 
