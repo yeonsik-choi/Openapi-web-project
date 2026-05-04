@@ -10,7 +10,7 @@ class SundayHistoryItem(BaseModel):
 
     date: str = Field(..., description="YYYY-MM-DD")
     main_event: str = Field("", serialization_alias="mainEvent")
-    perks_text: str = Field("", serialization_alias="perksText")
+    event_summary: str = Field("", serialization_alias="eventSummary")
 
 
 class SundayShowItem(BaseModel):

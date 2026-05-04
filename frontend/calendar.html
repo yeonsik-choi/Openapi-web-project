@@ -377,7 +377,7 @@
                   {{ day.sundayInfo.mainEvent }}
                 </div>
                 <div class="sunday-tags">
-                  <span class="sunday-tag" v-for="(tag, tIdx) in parseTags(day.sundayInfo.perksText)" :key="tIdx">
+                  <span class="sunday-tag" v-for="(tag, tIdx) in parseTags(day.sundayInfo.eventSummary)" :key="tIdx">
                     {{ tag }}
                   </span>
                 </div>
@@ -452,9 +452,9 @@ createApp({
       }
     };
 
-    function parseTags(perksText) {
-      if (!perksText) return [];
-      return perksText.split(/[\n,\/]/).map(t => t.trim()).filter(t => t);
+    function parseTags(eventSummary) {
+      if (!eventSummary) return [];
+      return eventSummary.split(/[\n,\/]/).map(t => t.trim()).filter(t => t);
     };
 
     onMounted(() => {
