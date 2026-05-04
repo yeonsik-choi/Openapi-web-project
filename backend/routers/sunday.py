@@ -51,5 +51,5 @@ async def get_all_history():
         fetcher=lambda: asyncio.to_thread(sunday_service.fetch_all_history),
         ttl_sec=TTL_SUNDAY_ALL,
         # 두 배열 모두 비어있을 때만 캐싱 안 함
-        skip_if=lambda r: not r.history and not r.shows,
+        skip_if=lambda r: not r.history and not r.shows and not r.updates,
     )
