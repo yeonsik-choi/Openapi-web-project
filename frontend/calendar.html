@@ -202,6 +202,41 @@
       opacity: 0.6;
     }
 
+    /* 라이브 방송 */
+    .live-show-box {
+      background: rgba(52, 152, 219, 0.1);
+      border: 1px dashed rgba(52, 152, 219, 0.4);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 0.7rem;
+      color: #1a6fa8;
+      font-weight: 700;
+      text-align: center;
+      word-break: keep-all;
+    }
+    .live-show-label {
+      font-size: 0.63rem;
+      color: #3498DB;
+      font-weight: 800;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    .live-show-note {
+      font-size: 0.65rem;
+      color: rgba(26, 111, 168, 0.75);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* 로딩 */
+    .loading-wrap {
+      text-align: center;
+      padding: 60px 0;
+      color: rgba(92,46,0,0.5);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
     /* ── Footer ── */
     .site-footer { position: relative; z-index: 10; flex-shrink: 0; background: linear-gradient(180deg, rgba(255,248,236,0.9) 0%, #FFFDF9 100%); border-top: 1px solid rgba(255,165,0,0.25); display: flex; flex-direction: column; align-items: center; }
     .footer-inner { width: 100%; max-width: 1100px; padding: 0 24px; }
@@ -287,22 +322,30 @@
           <div class="weekday">금</div>
           <div class="weekday sat">토</div>
 
-          <div 
-            class="day-cell" 
-            v-for="(day, index) in calendarDays" 
+          <div
+            class="day-cell"
+            v-for="(day, index) in calendarDays"
             :key="index"
             :class="{ 'empty': !day.isCurrentMonth, 'sunday': day.dayOfWeek === 0 && day.isCurrentMonth }"
           >
             <span class="date-num">{{ day.dateNum }}</span>
-            
+
+            <!-- 라이브 방송 표시 (모든 요일) -->
+            <div class="live-show-box" v-if="day.showInfo && day.isCurrentMonth">
+              <div class="live-show-label">📺 라이브 방송</div>
+              <div>{{ day.showInfo.event }}</div>
+              <div class="live-show-note" v-if="day.showInfo.note">{{ day.showInfo.note }}</div>
+            </div>
+
+            <!-- 썬데이 이력 (일요일만) -->
             <div class="sunday-data-box" v-if="day.dayOfWeek === 0 && day.isCurrentMonth">
               <div v-if="day.sundayInfo" class="sunday-content">
-                <div class="sunday-event" v-if="day.sundayInfo.event && day.sundayInfo.event !== '(-)'">
-                  {{ day.sundayInfo.event }}
+                <div class="sunday-event" v-if="day.sundayInfo.mainEvent && day.sundayInfo.mainEvent !== '(-)'">
+                  {{ day.sundayInfo.mainEvent }}
                 </div>
                 <div class="sunday-tags">
-                  <span class="sunday-tag" v-for="(tag, tIdx) in day.sundayInfo.active_tags" :key="tIdx">
-                    {{ tag.replace(/_/g, ' ') }}
+                  <span class="sunday-tag" v-for="(tag, tIdx) in parseTags(day.sundayInfo.perksText)" :key="tIdx">
+                    {{ tag }}
                   </span>
                 </div>
               </div>
@@ -357,40 +400,29 @@ const { createApp, ref, computed, onMounted } = Vue;
 createApp({
   setup() {
     const searchKeyword = ref('');
-    const sundayHistory = ref([]); 
-    
+    const sundayHistory = ref([]);
+    const liveShows = ref([]);
+
     const today = new Date();
     const currentYear = ref(today.getFullYear());
     const currentMonth = ref(today.getMonth() + 1);
 
     const fetchSundayHistory = async () => {
-      // ▼ 임시로 백엔드 API 연결 부분 전체 주석 처리
-      /*
       try {
-        const apiUrl = 'https://maplessunday.onrender.com/api/sunday/history/all';
-        
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✅ 백엔드 데이터 로드 성공:", data); 
-          sundayHistory.value = data;
-        } else {
-          console.error('❌ 백엔드 응답 오류:', response.status);
+        const res = await fetch('https://maplessunday.onrender.com/api/sunday/history/all');
+        if (res.ok) {
+          const data = await res.json();
+          sundayHistory.value = data.history || [];
+          liveShows.value = data.shows || [];
         }
-      } catch (error) {
-        console.error('❌ 데이터를 가져오는 중 오류 발생:', error);
+      } catch (e) {
+        console.error('데이터 로드 실패:', e);
       }
-      */
+    };
 
-      // ▼ 화면이 정상적으로 나오는지 확인하기 위한 임시(더미) 데이터 삽입
-      console.log("✅ 백엔드 연결을 차단하고 임시 데이터를 보여줍니다.");
-      sundayHistory.value = [
-        {
-          date: "2026-05-03", 
-          event: "<메이플 어택!>",
-          active_tags: ["위소울 5배", "주문의_흔적_반값"]
-        }
-      ];
+    function parseTags(perksText) {
+      if (!perksText) return [];
+      return perksText.split(/[\n,\/]/).map(t => t.trim()).filter(t => t);
     };
 
     onMounted(() => {
@@ -423,19 +455,23 @@ createApp({
       for (let i = 1; i <= daysInMonth; i++) {
         const dayOfWeek = new Date(year, month, i).getDay();
         const dateString = `${year}.${pad(month + 1)}.${pad(i)}`;
-        
-        // 날짜 포맷팅(예: 2026-04-19 -> 2026.04.19) 후 매핑
+
         const sundayInfo = sundayHistory.value.find(item => {
           if (!item.date) return false;
-          const normalizedDate = item.date.replace(/-/g, '.');
-          return normalizedDate === dateString;
+          return item.date.replace(/-/g, '.') === dateString;
+        });
+
+        const showInfo = liveShows.value.find(item => {
+          if (!item.liveShowDay) return false;
+          return item.liveShowDay.replace(/-/g, '.') === dateString;
         });
 
         days.push({
           dateNum: i,
           isCurrentMonth: true,
           dayOfWeek: dayOfWeek,
-          sundayInfo: sundayInfo || null
+          sundayInfo: sundayInfo || null,
+          showInfo: showInfo || null
         });
       }
       
@@ -476,14 +512,15 @@ createApp({
       }
     }
 
-    return { 
+    return {
       searchKeyword,
       currentYear,
       currentMonth,
       calendarDays,
       prevMonth,
       nextMonth,
-      reSearch 
+      reSearch,
+      parseTags
     };
   }
 }).mount('#app');
