@@ -5,7 +5,7 @@ import unicodedata
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from core.config import NEXON_HTTP_TRUST_ENV
 from schemas.character_all import (
@@ -1138,7 +1138,9 @@ def _set_effects_ui(payload: dict) -> list[SetEffectUi]:
         502: {"description": "넥슨 API HTTP 오류 또는 네트워크/프록시 연결 실패"},
     },
 )
-async def get_character_info(nickname: str):
+async def get_character_info(
+    nickname: str = Query(..., min_length=2, max_length=12, pattern=r"^[가-힣a-zA-Z0-9]+$"),
+):
     require_nexon_api_key()
     yesterday = get_yesterday()
 

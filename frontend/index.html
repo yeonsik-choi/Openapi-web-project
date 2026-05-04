@@ -257,7 +257,7 @@
           <a href="board.html">소식</a>
         </nav>
         <div class="header-search">
-          <input v-model="headerNickname" placeholder="닉네임 검색" @keyup.enter="search(headerNickname)" />
+          <input v-model="headerNickname" placeholder="닉네임 검색" maxlength="12" @keyup.enter="search(headerNickname)" />
           <button @click="search(headerNickname)" :disabled="!headerNickname.trim()">조회</button>
         </div>
       </div>
@@ -272,7 +272,7 @@
     <div class="search-card">
       <span class="search-label">캐릭터 닉네임</span>
       <div class="search-row">
-        <input class="search-input" v-model="mainNickname" placeholder="닉네임 검색" @keyup.enter="search(mainNickname)" />
+        <input class="search-input" v-model="mainNickname" placeholder="닉네임 검색" maxlength="12" @keyup.enter="search(mainNickname)" />
         <button class="search-btn" @click="search(mainNickname)" :disabled="!mainNickname.trim()">조회</button>
       </div>
 
@@ -442,28 +442,33 @@ createApp({
       }
     });
 
+    const _NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,12}$/;
+
     // 닉네임 검색 및 로컬 스토리지 저장 로직
     function search(targetNickname) {
       const name = targetNickname.trim();
-      if (name) {
-        // 기존 기록에서 동일한 검색어가 있다면 제거 (항상 최신 위치로 올리기 위함)
-        let history = recentHistory.value.filter(n => n !== name);
-        
-        // 맨 앞에 새 검색어 추가
-        history.unshift(name);
-        
-        // 최근 검색어는 최대 5개까지만 유지
-        if (history.length > 5) {
-          history.pop();
-        }
-        
-        // 상태 업데이트 및 로컬 스토리지에 저장
-        recentHistory.value = history;
-        localStorage.setItem('mapleSearchHistory', JSON.stringify(history));
-
-        // 결과 페이지로 이동
-        window.location.href = `result.html?name=${encodeURIComponent(name)}`;
+      if (!name) return;
+      if (!_NICKNAME_RE.test(name)) {
+        alert('닉네임은 2~12자의 한글, 영문, 숫자만 사용할 수 있습니다.');
+        return;
       }
+      // 기존 기록에서 동일한 검색어가 있다면 제거 (항상 최신 위치로 올리기 위함)
+      let history = recentHistory.value.filter(n => n !== name);
+
+      // 맨 앞에 새 검색어 추가
+      history.unshift(name);
+
+      // 최근 검색어는 최대 5개까지만 유지
+      if (history.length > 5) {
+        history.pop();
+      }
+
+      // 상태 업데이트 및 로컬 스토리지에 저장
+      recentHistory.value = history;
+      localStorage.setItem('mapleSearchHistory', JSON.stringify(history));
+
+      // 결과 페이지로 이동
+      window.location.href = `result.html?name=${encodeURIComponent(name)}`;
     }
 
     // 최근 검색어 개별 삭제 로직

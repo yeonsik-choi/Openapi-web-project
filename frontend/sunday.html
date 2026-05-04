@@ -221,7 +221,7 @@
           <a href="board.html">소식</a>
         </nav>
         <div class="header-search">
-          <input v-model="searchKeyword" placeholder="닉네임 검색" @keyup.enter="reSearch" />
+          <input v-model="searchKeyword" placeholder="닉네임 검색" maxlength="12" @keyup.enter="reSearch" />
           <button @click="reSearch" :disabled="!searchKeyword.trim()">조회</button>
         </div>
       </div>
@@ -372,15 +372,20 @@ createApp({
       }
     ]);
 
+    const _NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,12}$/;
+
     function reSearch() {
       const name = searchKeyword.value.trim();
-      if (name) {
-        window.location.href = `result.html?name=${encodeURIComponent(name)}`;
+      if (!name) return;
+      if (!_NICKNAME_RE.test(name)) {
+        alert('닉네임은 2~12자의 한글, 영문, 숫자만 사용할 수 있습니다.');
+        return;
       }
+      window.location.href = `result.html?name=${encodeURIComponent(name)}`;
     }
 
-    return { 
-      searchKeyword, 
+    return {
+      searchKeyword,
       predictions, 
       recentSundays, 
       reSearch,
