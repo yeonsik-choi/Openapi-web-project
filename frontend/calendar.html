@@ -228,6 +228,32 @@
       margin-top: 2px;
     }
 
+    /* 업데이트 */
+    .update-box {
+      background: rgba(39, 174, 96, 0.1);
+      border: 1px dashed rgba(39, 174, 96, 0.4);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 0.7rem;
+      color: #1a7a40;
+      font-weight: 700;
+      text-align: center;
+      word-break: keep-all;
+    }
+    .update-label {
+      font-size: 0.63rem;
+      color: #27AE60;
+      font-weight: 800;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    .update-note {
+      font-size: 0.65rem;
+      color: rgba(26, 122, 64, 0.75);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
     /* 로딩 */
     .loading-wrap {
       text-align: center;
@@ -337,9 +363,16 @@
               <div class="live-show-note" v-if="day.showInfo.note">{{ day.showInfo.note }}</div>
             </div>
 
+            <!-- 업데이트 표시 (모든 요일) -->
+            <div class="update-box" v-if="day.updateInfo && day.isCurrentMonth">
+              <div class="update-label">🔔 업데이트</div>
+              <div>{{ day.updateInfo.event }}</div>
+              <div class="update-note" v-if="day.updateInfo.note">{{ day.updateInfo.note }}</div>
+            </div>
+
             <!-- 썬데이 이력 (일요일만) -->
-            <div class="sunday-data-box" v-if="day.dayOfWeek === 0 && day.isCurrentMonth">
-              <div v-if="day.sundayInfo" class="sunday-content">
+            <div class="sunday-data-box" v-if="day.dayOfWeek === 0 && day.isCurrentMonth && day.sundayInfo">
+              <div class="sunday-content">
                 <div class="sunday-event" v-if="day.sundayInfo.mainEvent && day.sundayInfo.mainEvent !== '(-)'">
                   {{ day.sundayInfo.mainEvent }}
                 </div>
@@ -348,9 +381,6 @@
                     {{ tag }}
                   </span>
                 </div>
-              </div>
-              <div v-else class="sunday-empty">
-                데이터 없음
               </div>
             </div>
           </div>
@@ -402,6 +432,7 @@ createApp({
     const searchKeyword = ref('');
     const sundayHistory = ref([]);
     const liveShows = ref([]);
+    const updateEvents = ref([]);
 
     const today = new Date();
     const currentYear = ref(today.getFullYear());
@@ -414,6 +445,7 @@ createApp({
           const data = await res.json();
           sundayHistory.value = data.history || [];
           liveShows.value = data.shows || [];
+          updateEvents.value = data.updates || [];
         }
       } catch (e) {
         console.error('데이터 로드 실패:', e);
@@ -466,12 +498,18 @@ createApp({
           return item.liveShowDay.replace(/-/g, '.') === dateString;
         });
 
+        const updateInfo = updateEvents.value.find(item => {
+          if (!item.updateDay) return false;
+          return item.updateDay.replace(/-/g, '.') === dateString;
+        });
+
         days.push({
           dateNum: i,
           isCurrentMonth: true,
           dayOfWeek: dayOfWeek,
           sundayInfo: sundayInfo || null,
-          showInfo: showInfo || null
+          showInfo: showInfo || null,
+          updateInfo: updateInfo || null
         });
       }
       
