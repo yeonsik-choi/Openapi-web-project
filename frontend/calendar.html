@@ -364,8 +364,9 @@ createApp({
     const currentMonth = ref(today.getMonth() + 1);
 
     const fetchSundayHistory = async () => {
+      // ▼ 임시로 백엔드 API 연결 부분 전체 주석 처리
+      /*
       try {
-        // 실제 배포된 Render API 주소로 직접 연결
         const apiUrl = 'https://maplessunday.onrender.com/api/sunday/history/all';
         
         const response = await fetch(apiUrl);
@@ -379,6 +380,17 @@ createApp({
       } catch (error) {
         console.error('❌ 데이터를 가져오는 중 오류 발생:', error);
       }
+      */
+
+      // ▼ 화면이 정상적으로 나오는지 확인하기 위한 임시(더미) 데이터 삽입
+      console.log("✅ 백엔드 연결을 차단하고 임시 데이터를 보여줍니다.");
+      sundayHistory.value = [
+        {
+          date: "2026-05-03", 
+          event: "<메이플 어택!>",
+          active_tags: ["위소울 5배", "주문의_흔적_반값"]
+        }
+      ];
     };
 
     onMounted(() => {
