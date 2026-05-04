@@ -120,13 +120,14 @@
     }
     .pred-table { width: 100%; border-collapse: collapse; text-align: left; }
     .pred-table th {
-      background: linear-gradient(135deg, rgba(255,245,230,0.9), rgba(255,250,240,0.9));
+      background: #fff;
       padding: 18px 24px;
       font-size: 0.9rem;
-      color: var(--maple-orange);
-      font-weight: 800;
-      border-bottom: 2px solid rgba(255,165,0,0.2);
+      color: rgba(92,46,0,0.5);
+      font-weight: 700;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
       white-space: nowrap;
+      letter-spacing: 0.3px;
     }
     .pred-table td {
       padding: 16px 24px;
@@ -137,17 +138,22 @@
       vertical-align: middle;
       transition: background 0.2s;
     }
-    .pred-table tbody tr:hover td { background: rgba(255,165,0,0.03); }
+    .pred-table tbody tr:hover td { background: rgba(255,165,0,0.04) !important; }
     .pred-table tbody tr:last-child td { border-bottom: none; }
+
+    /* 순위별 행 강조 */
+    .row-rank-1 { box-shadow: inset 4px 0 0 #FFD700; }
+    .row-rank-2 { box-shadow: inset 4px 0 0 #C0C0C0; }
+    .row-rank-3 { box-shadow: inset 4px 0 0 #CD7F32; }
 
     /* 테이블 요소 꾸미기 */
     .col-rank { width: 80px; text-align: center; }
-    .col-prob { width: 120px; }
+    .col-prob { width: 140px; }
     .col-benefit { min-width: 300px; font-weight: 700 !important; }
     .col-note { width: 140px; color: rgba(92,46,0,0.6) !important; font-size: 0.85rem !important; }
 
     .rank-badge {
-      display: inline-block; width: 32px; height: 32px; line-height: 32px; text-align: center;
+      display: inline-block; width: 34px; height: 34px; line-height: 34px; text-align: center;
       border-radius: 50%; background: #F5F5F5; font-weight: 900; font-family: 'Black Han Sans', sans-serif;
       font-size: 0.95rem; color: #777;
     }
@@ -155,15 +161,35 @@
     .rank-2 { background: linear-gradient(135deg, #E0E0E0, #9E9E9E); color: #fff; box-shadow: 0 2px 8px rgba(158,158,158,0.4); }
     .rank-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; box-shadow: 0 2px 8px rgba(160,82,45,0.4); }
 
-    .prob-pill {
+    /* 확률 바 */
+    .prob-num { font-size: 1rem; font-weight: 900; color: #E74C3C; margin-bottom: 6px; }
+    .prob-bar-track { height: 5px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden; width: 88px; }
+    .prob-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #FFD94A, #FF8C42, #E74C3C); }
+
+    /* 경과 시간 칩 */
+    .note-chip {
       display: inline-block;
-      background: rgba(231, 76, 60, 0.1);
-      color: #E74C3C;
-      padding: 6px 12px;
-      border-radius: 14px;
+      background: rgba(255,165,0,0.1);
+      color: rgba(92,46,0,0.65);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid rgba(255,165,0,0.2);
+      white-space: nowrap;
+    }
+
+    /* 최근 날짜 배지 */
+    .date-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(255,140,66,0.12), rgba(255,107,0,0.06));
+      color: var(--maple-orange);
+      padding: 6px 14px;
+      border-radius: 8px;
       font-weight: 800;
-      font-size: 0.85rem;
-      letter-spacing: 0.5px;
+      font-size: 0.88rem;
+      border: 1px solid rgba(255,165,0,0.25);
+      white-space: nowrap;
     }
 
     /* ── Footer ── */
@@ -247,12 +273,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in predictions" :key="item.rank">
+            <tr v-for="item in predictions" :key="item.rank" :class="'row-rank-' + item.rank">
               <td class="col-rank">
                 <span class="rank-badge" :class="'rank-' + item.rank">{{ item.rank }}</span>
               </td>
               <td class="col-prob">
-                <span class="prob-pill">{{ item.probability }}</span>
+                <div class="prob-num">{{ item.probability }}</div>
+                <div class="prob-bar-track">
+                  <div class="prob-bar-fill" :style="{width: item.probability}"></div>
+                </div>
               </td>
               <td class="col-benefit">{{ item.benefit }}</td>
               <td class="col-note">{{ item.note }}</td>
@@ -287,7 +316,7 @@
           </thead>
           <tbody>
             <tr v-for="item in recentSundays" :key="item.date">
-              <td style="text-align: center; color: rgba(92,46,0,0.7); font-weight: 700;">{{ item.date }}</td>
+              <td style="text-align: center;"><span class="date-badge">{{ item.date }}</span></td>
               <td class="col-benefit" style="font-weight: 500 !important;">{{ item.benefit }}</td>
             </tr>
           </tbody>
