@@ -188,6 +188,174 @@
       white-space: nowrap;
     }
 
+    /* ── Accordion ── */
+    .accordion-wrap {
+      background: #fff;
+      border: 1px solid rgba(255,165,0,0.22);
+      border-radius: 16px;
+      margin-bottom: 48px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(255,165,0,0.06);
+    }
+    .accordion-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: var(--maple-brown);
+      text-align: left;
+      transition: background 0.2s;
+      gap: 8px;
+    }
+    .accordion-btn:hover { background: rgba(255,165,0,0.05); }
+    .accordion-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--maple-orange);
+      transition: transform 0.3s ease;
+    }
+    .accordion-chevron.open { transform: rotate(180deg); }
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 24px;
+      border-top: 0px solid rgba(255,165,0,0.15);
+    }
+    .accordion-body.is-open {
+      max-height: 600px;
+      padding: 20px 24px 24px;
+      border-top-width: 1px;
+    }
+    .accordion-section { margin-bottom: 16px; }
+    .accordion-section:last-child { margin-bottom: 0; }
+    .accordion-section-title {
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: var(--maple-orange);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .accordion-section p {
+      font-size: 0.88rem;
+      color: rgba(92,46,0,0.72);
+      line-height: 1.85;
+    }
+    .accordion-step-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .accordion-step-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: rgba(92,46,0,0.72);
+      line-height: 1.7;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--maple-orange), #FF6B00);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .accordion-notice {
+      display: flex;
+      gap: 8px;
+      background: rgba(255,165,0,0.07);
+      border: 1px solid rgba(255,165,0,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.84rem;
+      color: rgba(92,46,0,0.68);
+      line-height: 1.7;
+    }
+    .accordion-models {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .accordion-model-card {
+      flex: 1;
+      background: rgba(255,248,236,0.7);
+      border: 1px solid rgba(255,165,0,0.2);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .accordion-model-plus {
+      flex-shrink: 0;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: rgba(92,46,0,0.3);
+    }
+    .model-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .ml-label   { background: rgba(99,102,241,0.12); color: #6366F1; }
+    .stat-label { background: rgba(16,185,129,0.12); color: #059669; }
+    .final-label { background: linear-gradient(135deg, rgba(255,140,66,0.2), rgba(255,50,0,0.12)); color: var(--maple-orange); }
+    .model-title {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: var(--maple-brown);
+      margin-bottom: 6px;
+    }
+    .accordion-model-card p {
+      font-size: 0.82rem;
+      color: rgba(92,46,0,0.65);
+      line-height: 1.7;
+    }
+    .final-card {
+      border-color: rgba(255,140,66,0.35);
+      background: rgba(255,248,236,0.9);
+    }
+
+    /* ── 예측 적중 ── */
+    .hit-row td { background: rgba(255,215,0,0.06) !important; }
+    .hit-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #fff;
+      font-size: 0.74rem;
+      font-weight: 900;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-right: 8px;
+      box-shadow: 0 2px 6px rgba(255,165,0,0.35);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
     /* ── Footer ── */
     .site-footer { position: relative; z-index: 10; flex-shrink: 0; background: linear-gradient(180deg, rgba(255,248,236,0.9) 0%, #FFFDF9 100%); border-top: 1px solid rgba(255,165,0,0.25); display: flex; flex-direction: column; align-items: center; }
     .footer-inner { width: 100%; max-width: 1100px; padding: 0 24px; }
@@ -297,6 +465,44 @@
         </div>
       </div>
       
+      <div class="accordion-wrap">
+        <button class="accordion-btn" @click="modelOpen = !modelOpen">
+          <span>🔍 예측 모델은 어떻게 만들어졌나요?</span>
+          <span class="accordion-chevron" :class="{ open: modelOpen }">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="accordion-body" :class="{ 'is-open': modelOpen }">
+          <p style="font-size:0.88rem;color:rgba(92,46,0,0.65);margin-bottom:20px;line-height:1.8;">
+            단순히 "몇 주 만에 나왔다" 통계가 아니라, <strong>두 가지 모델을 혼합</strong>해 확률을 산출합니다.
+          </p>
+          <div class="accordion-models">
+            <div class="accordion-model-card">
+              <div class="model-label ml-label">모델 1</div>
+              <div class="model-title">머신러닝</div>
+              <p>과거 패턴 데이터를 학습해서 확률을 산출해요.</p>
+            </div>
+            <div class="accordion-model-plus">+</div>
+            <div class="accordion-model-card">
+              <div class="model-label stat-label">모델 2</div>
+              <div class="model-title">통계 모델</div>
+              <p>이벤트마다 고유한 주기 분포를 계산해요.</p>
+            </div>
+            <div class="accordion-model-plus">→</div>
+            <div class="accordion-model-card final-card">
+              <div class="model-label final-label">최종</div>
+              <div class="model-title">혼합 확률</div>
+              <p>두 모델을 섞어 최종 확률을 냅니다.</p>
+            </div>
+          </div>
+          <div class="accordion-notice" style="margin-top:20px;">
+            ⚠️ 이 예측은 통계·학습 기반이며, 넥슨의 실제 운영 계획과는 무관합니다. 참고 용도로만 활용해 주세요.
+          </div>
+        </div>
+      </div>
+
       <div class="page-header" style="margin-top: 40px; margin-bottom: 30px;">
         <h2 class="page-title" style="font-size: 1.8rem; background: linear-gradient(135deg, #FF8C00, #F0A500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">최근 진행된 썬데이 메이플</h2>
         <p class="page-desc">최근 몇 주간 진행되었던 썬데이 메이플 혜택입니다.</p>
@@ -311,9 +517,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in recentSundays" :key="item.date">
+            <tr v-for="item in recentSundays" :key="item.date" :class="{ 'hit-row': item.hit }">
               <td style="text-align: center;"><span class="date-badge">{{ item.date }}</span></td>
-              <td class="col-benefit" style="font-weight: 500 !important;">{{ item.benefit }}</td>
+              <td class="col-benefit" style="font-weight: 500 !important;">
+                <span v-if="item.hit" class="hit-chip">{{ item.hitRank }}위 예측 적중</span>{{ item.benefit }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -361,7 +569,8 @@ const { createApp, ref } = Vue;
 createApp({
   setup() {
     const searchKeyword = ref('');
-    
+    const modelOpen = ref(false);
+
     // 👇 예측 날짜 수정 가능 영역
     const nextStarForceDate = ref('2026.05.24');
     const nextMiracleDayDate = ref('2026.07.19');
@@ -375,9 +584,11 @@ createApp({
     ]);
 
     const recentSundays = ref([
-      { 
-        date: '5월 10일', 
-        benefit: '미라클 타임, 몬스터 파크 클리어 경험치 추가 250%' 
+      {
+        date: '5월 10일',
+        benefit: '미라클 타임, 몬스터 파크 클리어 경험치 추가 250%',
+        hit: true,
+        hitRank: 1
       },
       { 
         date: '5월 3일', 
@@ -411,11 +622,12 @@ createApp({
 
     return {
       searchKeyword,
-      predictions, 
-      recentSundays, 
+      modelOpen,
+      predictions,
+      recentSundays,
       reSearch,
-      nextStarForceDate, 
-      nextMiracleDayDate 
+      nextStarForceDate,
+      nextMiracleDayDate
     };
   }
 }).mount('#app');
