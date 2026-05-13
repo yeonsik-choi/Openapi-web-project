@@ -52,7 +52,6 @@ from services.nexon_api import (
     fetch_union_champion,
     fetch_union_raider,
     get_ocid,
-    get_yesterday,
     raise_nexon_request_error,
     require_nexon_api_key,
 )
@@ -1142,7 +1141,6 @@ async def get_character_info(
     nickname: str = Query(..., min_length=2, max_length=12, pattern=r"^[가-힣a-zA-Z0-9]+$"),
 ):
     require_nexon_api_key()
-    yesterday = get_yesterday()
 
     try:
         async with httpx.AsyncClient(
@@ -1154,39 +1152,39 @@ async def get_character_info(
                 name="ocid",
             )
             batch1 = await asyncio.gather(
-                _with_retry(lambda: fetch_character_basic(client, ocid, yesterday), name="basic"),
-                _with_retry(lambda: fetch_character_stat(client, ocid, yesterday), name="stat"),
-                _with_retry(lambda: fetch_character_ability(client, ocid, yesterday), name="ability"),
+                _with_retry(lambda: fetch_character_basic(client, ocid), name="basic"),
+                _with_retry(lambda: fetch_character_stat(client, ocid), name="stat"),
+                _with_retry(lambda: fetch_character_ability(client, ocid), name="ability"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch2a = await asyncio.gather(
-                _with_retry(lambda: fetch_item_equipment(client, ocid, yesterday), name="item_equipment"),
-                _with_retry(lambda: fetch_character_popularity(client, ocid, yesterday), name="popularity"),
-                _with_retry(lambda: fetch_union(client, ocid, yesterday), name="union"),
-                _with_retry(lambda: fetch_overall_ranking(client, ocid, yesterday), name="ranking"),
-                _with_retry(lambda: fetch_set_effect(client, ocid, yesterday), name="set_effect"),
+                _with_retry(lambda: fetch_item_equipment(client, ocid), name="item_equipment"),
+                _with_retry(lambda: fetch_character_popularity(client, ocid), name="popularity"),
+                _with_retry(lambda: fetch_union(client, ocid), name="union"),
+                _with_retry(lambda: fetch_overall_ranking(client, ocid), name="ranking"),
+                _with_retry(lambda: fetch_set_effect(client, ocid), name="set_effect"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch2b = await asyncio.gather(
-                _with_retry(lambda: fetch_union_raider(client, ocid, yesterday), name="union_raider"),
-                _with_retry(lambda: fetch_union_artifact(client, ocid, yesterday), name="union_artifact"),
-                _with_retry(lambda: fetch_union_champion(client, ocid, yesterday), name="union_champion"),
+                _with_retry(lambda: fetch_union_raider(client, ocid), name="union_raider"),
+                _with_retry(lambda: fetch_union_artifact(client, ocid), name="union_artifact"),
+                _with_retry(lambda: fetch_union_champion(client, ocid), name="union_champion"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch3 = await asyncio.gather(
-                _with_retry(lambda: fetch_character_skill(client, ocid, yesterday, "6"), name="skill_grade_6"),
-                _with_retry(lambda: fetch_character_skill(client, ocid, yesterday, "5"), name="skill_grade_5"),
-                _with_retry(lambda: fetch_character_hexamatrix_stat(client, ocid, yesterday), name="hexamatrix_stat"),
+                _with_retry(lambda: fetch_character_skill(client, ocid, "6"), name="skill_grade_6"),
+                _with_retry(lambda: fetch_character_skill(client, ocid, "5"), name="skill_grade_5"),
+                _with_retry(lambda: fetch_character_hexamatrix_stat(client, ocid), name="hexamatrix_stat"),
                 return_exceptions=True,
             )
             await asyncio.sleep(_NEXON_SLEEP_SEC)
             batch4 = await asyncio.gather(
-                _with_retry(lambda: fetch_character_hexamatrix(client, ocid, yesterday), name="hexamatrix"),
-                _with_retry(lambda: fetch_character_vmatrix(client, ocid, yesterday), name="vmatrix"),
-                _with_retry(lambda: fetch_character_link_skill(client, ocid, yesterday), name="link_skill"),
+                _with_retry(lambda: fetch_character_hexamatrix(client, ocid), name="hexamatrix"),
+                _with_retry(lambda: fetch_character_vmatrix(client, ocid), name="vmatrix"),
+                _with_retry(lambda: fetch_character_link_skill(client, ocid), name="link_skill"),
                 return_exceptions=True,
             )
             results = list(batch1) + [
