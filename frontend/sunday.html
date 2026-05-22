@@ -355,9 +355,18 @@
       vertical-align: middle;
       white-space: nowrap;
     }
-    .hit-chip-silver {
+    .hit-chip-rank-2 {
       background: linear-gradient(135deg, #E0E0E0, #9E9E9E);
       box-shadow: 0 2px 6px rgba(158,158,158,0.35);
+    }
+    .hit-chip-rank-3 {
+      background: linear-gradient(135deg, #CD7F32, #A0522D);
+      box-shadow: 0 2px 6px rgba(160,82,45,0.35);
+    }
+    .hit-chip-rank-4 {
+      background: #F5F5F5;
+      color: #777;
+      box-shadow: 0 2px 6px rgba(120,120,120,0.2);
     }
 
     /* ── Footer ── */
@@ -530,8 +539,8 @@
             <tr v-for="item in recentSundays" :key="item.date" :class="{ 'hit-row': item.hit }">
               <td style="text-align: center;"><span class="date-badge">{{ item.date }}</span></td>
               <td class="col-benefit" style="font-weight: 500 !important;">
-                <span v-if="item.hit" class="hit-chip">{{ item.hitRank }}위 예측 적중</span>
-                <template v-if="item.benefit1">{{ item.benefit1 }}<span class="hit-chip hit-chip-silver">{{ item.extraHitRank }}위 예측 적중</span>{{ item.benefit2 }}</template>
+                <span v-if="item.hit" class="hit-chip" :class="'hit-chip-rank-' + item.hitRank">{{ item.hitRank }}위 예측 적중</span>
+                <template v-if="item.benefit1">{{ item.benefit1 }}<span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank">{{ item.extraHitRank }}위 예측 적중</span>{{ item.benefit2 }}<template v-if="item.extraHitRank2"><span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank2">{{ item.extraHitRank2 }}위 예측 적중</span>{{ item.benefit3 }}</template></template>
                 <template v-else>{{ item.benefit }}</template>
               </td>
             </tr>
@@ -587,18 +596,29 @@ createApp({
     const modelOpen = ref(false);
 
     // 👇 예측 날짜 수정 가능 영역
-    const nextStarForceDate = ref('2026.05.24');
+    const nextStarForceDate = ref('2026.05.31');
     const nextMiracleDayDate = ref('2026.07.19');
 
     const predictions = ref([
-      { rank: 1, probability: '69.1%', benefit: '샤이닝 스타포스 타임', note: '4주 경과' },
-      { rank: 2, probability: '47.2%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '2주 경과' },
-      { rank: 3, probability: '45.1%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '7주 경과' },
-      { rank: 4, probability: '43.8%', benefit: '트레져 헌터 경험치 3배', note: '7주 경과' },
-      { rank: 5, probability: '43.2%', benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%', note: '3주 경과' },
+      { rank: 1, probability: '68.4%', benefit: '샤이닝 스타포스 타임', note: '5주 경과' },
+      { rank: 2, probability: '42.9%', benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%', note: '4주 경과' },
+      { rank: 3, probability: '42.8%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '14주 경과' },
+      { rank: 4, probability: '39.6%', benefit: '트레져 헌터 경험치 3배', note: '1주 경과' },
+      { rank: 5, probability: '32.9%', benefit: '주문의 흔적 강화 비용 50% 할인', note: '6주 경과' },
     ]);
 
     const recentSundays = ref([
+      {
+        date: '5월 24일',
+        benefit: '몬스터 파크 클리어 경험치 추가 250%, 사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, 트레져 헌터 경험치 3배',
+        benefit1: '몬스터 파크 클리어 경험치 추가 250%, ',
+        benefit2: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, ',
+        benefit3: '트레져 헌터 경험치 3배',
+        hit: true,
+        hitRank: 2,
+        extraHitRank: 3,
+        extraHitRank2: 4
+      },
       {
         date: '5월 17일',
         benefit: '소울 조각 사용 시 위대한 소울 획득 확률 5배, 어빌리티 재설정 비용 50% 할인',
@@ -621,10 +641,6 @@ createApp({
       { 
         date: '4월 26일', 
         benefit: '샤이닝 스타포스 타임, 몬스터 파크 클리어 경험치 추가 250%' 
-      },
-      { 
-        date: '4월 19일', 
-        benefit: '[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가, 주문의 흔적 강화 비용 50% 할인, 몬스터 파크 클리어 경험치 추가 250%'
       }
     ]);
 
