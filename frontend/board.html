@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1200" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>메이플 썬데이 - 소식</title>
   <meta name="description" content="메이플스토리 캐릭터 정보 조회부터 썬데이 메이플 예측까지 빠르고 직관적으로 제공하는 서비스입니다.">
   <meta property="og:title" content="메이플 썬데이">
@@ -130,6 +130,34 @@
     .footer-bottom-links { display: flex; gap: 16px; }
     .footer-bottom-links a { font-size: 0.72rem; color: rgba(92,46,0,0.6); font-weight: 700; text-decoration: none; transition: color .2s; }
     .footer-bottom-links a:hover { color: var(--maple-orange); }
+
+    /* ── 📱 모바일 반응형 ── */
+    @media (max-width: 768px) {
+      /* 가로 넘침 방지 (고정폭 광고 등) */
+      html, body { overflow-x: hidden; }
+      /* 헤더: 네비/검색 세로 정렬 */
+      .header-inner { padding: 0 16px; }
+      .header-row1 { padding: 10px 0; }
+      .header-row2 { flex-direction: column; align-items: stretch; gap: 10px; padding: 8px 0 12px; }
+      nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; }
+      nav a { padding: 7px 11px; font-size: 0.82rem; }
+      .header-search { width: 100%; }
+      .header-search input { width: 100%; flex: 1; }
+      /* 푸터: 1단 정렬 */
+      .footer-main { grid-template-columns: 1.5fr 1fr; gap: 18px; padding: 28px 0; }
+      .footer-col:empty { display: none; }
+      .footer-bottom { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+      .footer-bottom-links { justify-content: center; }
+      /* 소식 */
+      .page-board { padding: 28px 16px 60px; }
+      .page-title { font-size: 1.7rem; }
+      .page-desc { font-size: 0.9rem; }
+      .tab-row { gap: 8px; }
+      .tab-btn { padding: 10px 18px; font-size: 0.88rem; }
+      .list-header, .list-item { padding: 14px 16px; }
+      .list-header .col-date, .list-item-date { width: 76px; font-size: 0.78rem; }
+      .list-item-title { padding-right: 12px; font-size: 0.9rem; }
+    }
 
   </style>
 </head>
