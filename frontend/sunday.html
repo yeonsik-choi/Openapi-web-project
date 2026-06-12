@@ -637,17 +637,23 @@ createApp({
 
     // 👇 예측 날짜 수정 가능 영역
     const nextStarForceDate = ref('2026.06.28');
-    const nextMiracleDayDate = ref('2026.07.19'); 
+    const nextMiracleDayDate = ref('2026.07.19');
 
     const predictions = ref([
-      { rank: 1, probability: '47.5%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '3주 경과' },
-      { rank: 2, probability: '45.7%', benefit: '트레져 헌터 경험치 3배', note: '3주 경과' },
-      { rank: 3, probability: '42.2%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '16주 경과' },
-      { rank: 4, probability: '41.3%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '3주 경과' },
-      { rank: 5, probability: '39.1%', benefit: "주문의 흔적 강화 비용 50% 할인", note: '8주 경과' },
+      { rank: 1, probability: '53.9%', benefit: '어빌리티 재설정 비용 50% 할인', note: '5주 경과' },
+      { rank: 2, probability: '45.7%', benefit: '트레져 헌터 경험치 3배', note: '4주 경과' },
+      { rank: 3, probability: '44.2%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '4주 경과' },
+      { rank: 4, probability: '42.2%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '17주 경과' },
+      { rank: 5, probability: '41.0%', benefit: "주문의 흔적 강화 비용 50% 할인", note: '9주 경과' },
     ]);
 
     const recentSundays = ref([
+      {
+        date: '6월 14일',
+        benefit: '몬스터 파크 클리어 경험치 추가 250%, 썬데이 메이플 선물 지급',
+        hit: true,
+        hitRank: 1
+      },
       {
         date: '6월 7일',
         benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%',
@@ -679,12 +685,6 @@ createApp({
         hit: true,
         hitRank: 1,
         extraHitRank: 2
-      },
-      { 
-        date: '5월 10일',
-        benefit: '미라클 타임, 몬스터 파크 클리어 경험치 추가 250%',
-        hit: true,
-        hitRank: 1
       }
     ]);
 
