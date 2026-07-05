@@ -505,7 +505,7 @@
         <span class="notice-icon">📢</span>
         <div class="notice-body">
           <span class="notice-label">공지</span>
-          <strong>7월 12일</strong> 썬데이 예측은 <strong>7월 5일</strong>에 업데이트될 예정입니다.
+          <strong>7월 19일</strong> 썬데이 예측은 <strong>7월 10일</strong>에 업데이트될 예정입니다.
         </div>
       </div>
 
@@ -666,18 +666,24 @@ createApp({
     const modelOpen = ref(false);
 
     // 👇 예측 날짜 수정 가능 영역
-    const nextStarForceDate = ref('2026.07.05');
+    const nextStarForceDate = ref('2026.08.02');
     const nextMiracleDayDate = ref('2026.08.23');
 
     const predictions = ref([
-      { rank: 1, probability: '62.9%', benefit: '샤이닝 스타포스 타임', note: '5주 경과' },
-      { rank: 2, probability: '50.5%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '2주 경과' },
-      { rank: 3, probability: '46.0%', benefit: '주문의 흔적 강화 비용 50% 할인', note: '11주 경과' },
-      { rank: 4, probability: '42.8%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '19주 경과' },
-      { rank: 5, probability: '40.4%', benefit: "[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가", note: '11주 경과' },
+      { rank: 1, probability: '57.0%', benefit: '[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가', note: '12주 경과' },
+      { rank: 2, probability: '53.5%', benefit: '소울 조각 사용 시 위대한 소울 획득 확률 5배', note: '8주 경과' },
+      { rank: 3, probability: '49.1%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '3주 경과' },
+      { rank: 4, probability: '47.7%', benefit: "룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%", note: '3주 경과' },
+      { rank: 5, probability: '46.5%', benefit: "주문의 흔적 강화 비용 50% 할인", note: '12주 경과' },
     ]);
 
     const recentSundays = ref([
+      {
+        date: '7월 5일',
+        benefit: '샤이닝 스타포스 타임',
+        hit: true,
+        hitRank: 1
+      },
       {
         date: '6월 28일',
         benefit: '어빌리티 재설정 비용 50% 할인, 미라클 타임',
@@ -702,12 +708,6 @@ createApp({
       {
         date: '6월 7일',
         benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%',
-        hit: true,
-        hitRank: 1
-      },
-      {
-        date: '5월 31일',
-        benefit: '샤이닝 스타포스 타임',
         hit: true,
         hitRank: 1
       }
