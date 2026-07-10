@@ -390,6 +390,11 @@
       color: #777;
       box-shadow: 0 2px 6px rgba(120,120,120,0.2);
     }
+    .hit-chip-rank-5 {
+      background: #F5F5F5;
+      color: #777;
+      box-shadow: 0 2px 6px rgba(120,120,120,0.2);
+    }
 
     /* ── Footer ── */
     .site-footer { position: relative; z-index: 10; flex-shrink: 0; background: linear-gradient(180deg, rgba(255,248,236,0.9) 0%, #FFFDF9 100%); border-top: 1px solid rgba(255,165,0,0.25); display: flex; flex-direction: column; align-items: center; }
@@ -505,7 +510,7 @@
         <span class="notice-icon">📢</span>
         <div class="notice-body">
           <span class="notice-label">공지</span>
-          <strong>7월 19일</strong> 썬데이 예측은 <strong>7월 10일</strong>에 업데이트될 예정입니다.
+          <strong>7월 26일</strong> 썬데이 예측은 <strong>7월 17일</strong>에 업데이트될 예정입니다.
         </div>
       </div>
 
@@ -609,7 +614,7 @@
               <td style="text-align: center;"><span class="date-badge">{{ item.date }}</span></td>
               <td class="col-benefit" style="font-weight: 500 !important;">
                 <span v-if="item.hit" class="hit-chip" :class="'hit-chip-rank-' + item.hitRank">{{ item.hitRank }}위 예측 적중</span>
-                <template v-if="item.benefit1">{{ item.benefit1 }}<span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank">{{ item.extraHitRank }}위 예측 적중</span>{{ item.benefit2 }}<template v-if="item.extraHitRank2"><span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank2">{{ item.extraHitRank2 }}위 예측 적중</span>{{ item.benefit3 }}</template></template>
+                <template v-if="item.benefit1">{{ item.benefit1 }}<span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank">{{ item.extraHitRank }}위 예측 적중</span>{{ item.benefit2 }}<template v-if="item.extraHitRank2"><span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank2">{{ item.extraHitRank2 }}위 예측 적중</span>{{ item.benefit3 }}<template v-if="item.extraHitRank3"><span class="hit-chip" :class="'hit-chip-rank-' + item.extraHitRank3">{{ item.extraHitRank3 }}위 예측 적중</span>{{ item.benefit4 }}</template></template></template>
                 <template v-else>{{ item.benefit }}</template>
               </td>
             </tr>
@@ -670,14 +675,27 @@ createApp({
     const nextMiracleDayDate = ref('2026.08.23');
 
     const predictions = ref([
-      { rank: 1, probability: '57.0%', benefit: '[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가', note: '12주 경과' },
-      { rank: 2, probability: '53.5%', benefit: '소울 조각 사용 시 위대한 소울 획득 확률 5배', note: '8주 경과' },
-      { rank: 3, probability: '49.1%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '3주 경과' },
-      { rank: 4, probability: '47.7%', benefit: "룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%", note: '3주 경과' },
-      { rank: 5, probability: '46.5%', benefit: "주문의 흔적 강화 비용 50% 할인", note: '12주 경과' },
+      { rank: 1, probability: '47.9%', benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%', note: '4주 경과' },
+      { rank: 2, probability: '45.8%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '4주 경과' },
+      { rank: 3, probability: '30.0%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '1주 경과' },
+      { rank: 4, probability: '16.1%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '1주 경과' },
+      { rank: 5, probability: '15.1%', benefit: "샤이닝 스타포스 타임", note: '2주 경과' },
     ]);
 
     const recentSundays = ref([
+      {
+        date: '7월 12일',
+        benefit: "[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가, 소울 조각 사용 시 위대한 소울 획득 확률 5배, 몬스터 파크 클리어 경험치 추가 250%, 주문의 흔적 강화 비용 50% 할인, 트레져 헌터 경험치 3배, 어빌리티 재설정 비용 50% 할인, 10성 이하에서 스타포스 강화 성공 시 1+1 강화, 몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)",
+        benefit1: '[HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가, ',
+        benefit2: '소울 조각 사용 시 위대한 소울 획득 확률 5배, ',
+        benefit3: '몬스터 파크 클리어 경험치 추가 250%, ',
+        benefit4: "주문의 흔적 강화 비용 50% 할인, 트레져 헌터 경험치 3배, 어빌리티 재설정 비용 50% 할인, 10성 이하에서 스타포스 강화 성공 시 1+1 강화, 몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)",
+        hit: true,
+        hitRank: 1,
+        extraHitRank: 2,
+        extraHitRank2: 3,
+        extraHitRank3: 5
+      },
       {
         date: '7월 5일',
         benefit: '샤이닝 스타포스 타임',
@@ -702,12 +720,6 @@ createApp({
       {
         date: '6월 14일',
         benefit: '몬스터 파크 클리어 경험치 추가 250%, 썬데이 메이플 선물 지급',
-        hit: true,
-        hitRank: 1
-      },
-      {
-        date: '6월 7일',
-        benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%',
         hit: true,
         hitRank: 1
       }
