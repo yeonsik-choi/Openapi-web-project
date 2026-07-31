@@ -357,9 +357,10 @@
       <!-- 요약 히어로 -->
       <div class="acc-hero">
         <div class="acc-hero-headline">
-          최근 <span class="accent">{{ streakWeeks }}주 연속</span> 예측 적중!
+          <template v-if="streakWeeks > 0">최근 <span class="accent">{{ streakWeeks }}주 연속</span> TOP3 적중!</template>
+          <template v-else>전체 {{ totalWeeks }}주 중 <span class="accent">{{ top3Weeks }}주</span> TOP3 적중!</template>
         </div>
-        <div class="acc-hero-sub">매주 발표하는 예측 순위 안에서 실제 썬데이 메이플이 등장했어요.</div>
+        <div class="acc-hero-sub">발표한 예측 TOP3 안에서 실제 썬데이 메이플이 등장한 주를 집계했어요.</div>
         <div class="stat-grid">
           <div class="stat-card">
             <div class="stat-num">{{ totalWeeks }}<small>주</small></div>
@@ -455,6 +456,11 @@ createApp({
     //    month/day: 날짜, hits: 적중한 예측 순위 배열, benefit: 실제 진행된 혜택
     const hitRecords = ref([
       {
+        month: 8, day: 2,
+        hits: [5],
+        benefit: '어빌리티 재설정 비용 50% 할인, 미라클 타임'
+      },
+      {
         month: 7, day: 26,
         hits: [1, 2, 4, 5],
         benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%, 사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, 트레져 헌터 경험치 3배, 몬스터 파크 클리어 경험치 추가 250%'
@@ -517,23 +523,24 @@ createApp({
     ]);
 
     const totalWeeks = computed(() => hitRecords.value.length);
-    // 최신순 목록의 맨 위부터 적중이 끊기지 않고 이어진 주 수
+    const _isTop3 = (r) => r.hits.some(rank => rank <= 3);
+    // 최신순 목록의 맨 위부터 TOP3 적중이 끊기지 않고 이어진 주 수
     const streakWeeks = computed(() => {
       let streak = 0;
       for (const r of hitRecords.value) {
-        if (r.hits.length === 0) break;
+        if (!_isTop3(r)) break;
         streak++;
       }
       return streak;
     });
+    const top3Weeks = computed(() => hitRecords.value.filter(_isTop3).length);
     const rank1Hits = computed(() =>
       hitRecords.value.filter(r => r.hits.includes(1)).length
     );
-    // 적중한 주(혜택이 예측 안에 포함된 주) 비율
+    // 예측 1~3위 안에서 적중한 주 비율
     const hitRate = computed(() => {
       if (hitRecords.value.length === 0) return 0;
-      const hitWeeks = hitRecords.value.filter(r => r.hits.length > 0).length;
-      return Math.round((hitWeeks / hitRecords.value.length) * 100);
+      return Math.round((top3Weeks.value / hitRecords.value.length) * 100);
     });
 
     const _NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,12}$/;
@@ -553,6 +560,7 @@ createApp({
       hitRecords,
       totalWeeks,
       streakWeeks,
+      top3Weeks,
       rank1Hits,
       hitRate,
       reSearch
