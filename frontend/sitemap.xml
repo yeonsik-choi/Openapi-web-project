@@ -2,27 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://maplessunday.com/</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-08-02</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://maplessunday.com/board.html</loc>
-    <lastmod>2026-05-02</lastmod>
+    <loc>https://maplessunday.com/board</loc>
+    <lastmod>2026-08-02</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://maplessunday.com/calendar.html</loc>
-    <lastmod>2026-05-02</lastmod>
+    <loc>https://maplessunday.com/calendar</loc>
+    <lastmod>2026-08-02</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://maplessunday.com/result.html</loc>
-    <lastmod>2026-05-02</lastmod>
+    <loc>https://maplessunday.com/sunday</loc>
+    <lastmod>2026-08-02</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://maplessunday.com/sunday.html</loc>
-    <lastmod>2026-05-02</lastmod>
+    <loc>https://maplessunday.com/accuracy</loc>
+    <lastmod>2026-08-02</lastmod>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://maplessunday.com/privacy</loc>
+    <lastmod>2026-08-02</lastmod>
+    <priority>0.3</priority>
   </url>
 </urlset>
