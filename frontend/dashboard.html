@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>메이플 썬데이 - 역대 썬데이 기록</title>
+  <meta name="description" content="최근 1년 동안 자주 나온 썬데이 메이플 혜택의 주기와, 2017년부터의 역대 기록 전체를 한곳에서 확인하세요.">
+  <meta property="og:title" content="메이플 썬데이 - 역대 썬데이 대시보드">
+  <meta property="og:description" content="자주 나온 혜택의 주기와 2017년부터의 역대 썬데이 기록을 한곳에서 확인하세요.">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+  <!-- tools/build_sunday_cycles.py 로 생성. window.SUNDAY_CYCLES 를 채운다 -->
+  <script src="data/sunday-cycles.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5408795886632712"
+     crossorigin="anonymous"></script>
+  <link rel="canonical" href="https://maplessunday.com/dashboard">
+  <style>
+    /* ── BASE ── */
+    :root {
+      --maple-orange: #FF8C42; --maple-yellow: #FFD94A; --maple-pink: #FF6B9D;
+      --maple-dark: #FFF9E6; --maple-brown: #5C2E00; --maple-gold: #F0A500;
+      --maple-light: #3D2B1F; --maple-cream: #5C2E00;
+      --viz-series: #E2670E;
+      --viz-track: #F1EDE6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; transition: background-color 0.4s ease; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #FDFDFD; color: var(--maple-light); }
+    #app { display: flex; flex-direction: column; min-height: 100vh; position: relative; }
+
+    /* ── Header ── */
+    header {
+      position: relative; z-index: 20; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,248,236,0.9) 100%);
+      border-bottom: 2px solid rgba(255,165,0,0.25); backdrop-filter: blur(10px);
+    }
+    .header-inner { width: 100%; max-width: 1100px; display: flex; flex-direction: column; padding: 0 24px; }
+    .header-line { width: 100%; height: 1px; background: rgba(255,165,0,0.15); flex-shrink: 0; }
+    .header-row1 { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; }
+    .header-row2 { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+    .logo {
+      font-family: 'Black Han Sans', sans-serif; font-size: 1.55rem;
+      background: linear-gradient(135deg, var(--maple-orange), #FF3300);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(255,107,0,0.2));
+      cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none;
+    }
+    .logo-icon { font-size: 1.6rem; -webkit-text-fill-color: initial; filter: drop-shadow(0 0 8px rgba(255,107,0,0.4)); }
+    nav a {
+      color: rgba(92,46,0,0.7); text-decoration: none; padding: 6px 14px; font-size: 0.84rem; font-weight: 700;
+      border-radius: 6px; transition: color .2s, background .2s;
+    }
+    nav a:hover, nav a.active { color: var(--maple-orange); background: rgba(255,165,0,0.08); }
+    .header-search { display: flex; align-items: center; background: rgba(255,255,255,0.7); border: 1.5px solid rgba(255,165,0,0.4); border-radius: 24px; padding: 5px 6px 5px 16px; gap: 8px; }
+    .header-search:focus-within { border-color: var(--maple-orange); box-shadow: 0 0 0 3px rgba(255,107,0,0.15); }
+    .header-search input { width: 200px; background: transparent; border: none; outline: none; color: var(--maple-brown); font-family: 'Noto Sans KR', sans-serif; font-size: 0.87rem; font-weight: 500; }
+    .header-search input::placeholder { color: rgba(92,46,0,0.4); }
+    .header-search button { background: linear-gradient(135deg, var(--maple-orange), #FF8C00); border: none; border-radius: 18px; padding: 6px 16px; color: white; font-family: 'Black Han Sans', sans-serif; font-size: 0.82rem; cursor: pointer; transition: opacity .15s; }
+    .header-search button:hover:not(:disabled) { opacity: 0.85; }
+
+    /* ── PAGE ── */
+    .page-dash { flex: 1; padding: 44px 24px 80px; }
+    .dash-inner { max-width: 1000px; margin: 0 auto; }
+
+    .page-header { text-align: center; margin-bottom: 34px; }
+    .page-title { font-family: 'Black Han Sans', sans-serif; font-size: 2.2rem; background: linear-gradient(135deg, #FF6B00, #FF3300); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+    .page-desc { font-size: 1rem; color: rgba(92,46,0,0.7); font-weight: 500; line-height: 1.6; }
+    .data-stamp {
+      display: inline-block; background: rgba(255,165,0,0.08); border: 1px solid rgba(255,165,0,0.22);
+      border-radius: 20px; padding: 7px 16px; margin-top: 14px;
+      font-size: 0.76rem; font-weight: 700; color: rgba(92,46,0,0.62);
+    }
+
+    /* ── 섹션 공통 ── */
+    .section { margin-bottom: 46px; }
+    .section-head { margin-bottom: 20px; }
+    .section-title {
+      font-family: 'Black Han Sans', sans-serif; font-size: 1.4rem; color: var(--maple-brown);
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    }
+    .section-desc { font-size: 0.9rem; color: rgba(92,46,0,0.62); font-weight: 500; line-height: 1.7; }
+
+    /* ── 섹션 1 : 자주 나온 혜택 카드 ── */
+    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .freq-card {
+      background: #fff; border: 1px solid rgba(255,165,0,0.25); border-radius: 16px;
+      padding: 18px 20px; box-shadow: 0 6px 18px rgba(255,165,0,0.05);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .freq-rank {
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+      width: 22px; height: 22px; border-radius: 6px; background: var(--viz-track);
+      font-size: 0.72rem; font-weight: 900; color: rgba(92,46,0,0.55);
+      font-variant-numeric: tabular-nums;
+    }
+    .freq-card.top .freq-rank { background: var(--viz-series); color: #fff; }
+    .freq-name {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.95rem; font-weight: 800; color: var(--maple-brown); line-height: 1.5; word-break: keep-all;
+    }
+    .freq-stats { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill {
+      font-size: 0.76rem; font-weight: 800; padding: 4px 10px; border-radius: 20px;
+      background: rgba(255,140,66,0.12); color: #C25000; white-space: nowrap;
+    }
+    .pill.plain { background: rgba(92,46,0,0.06); color: rgba(92,46,0,0.6); }
+
+    .wk-strip { display: flex; gap: 1px; align-items: stretch; height: 22px; }
+    .wk { flex: 1; min-width: 0; background: var(--viz-track); border-radius: 1px; }
+    .wk.on { background: var(--viz-series); }
+    .wk-axis {
+      display: flex; justify-content: space-between;
+      font-size: 0.68rem; font-weight: 700; color: rgba(92,46,0,0.4); margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .freq-last { font-size: 0.8rem; font-weight: 600; color: rgba(92,46,0,0.62); font-variant-numeric: tabular-nums; }
+    .freq-last b { color: var(--maple-brown); font-weight: 800; }
+
+    /* ── 섹션 2 : 역대 전체 ── */
+    .arc-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .tabs { display: flex; border: 1.5px solid rgba(255,165,0,0.35); border-radius: 10px; overflow: hidden; }
+    .tabs button {
+      border: none; background: #fff; padding: 9px 16px; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 0.83rem; font-weight: 700;
+      color: rgba(92,46,0,0.6); transition: background .15s, color .15s;
+    }
+    .tabs button + button { border-left: 1px solid rgba(255,165,0,0.25); }
+    .tabs button:hover { background: rgba(255,165,0,0.07); }
+    .tabs button.on { background: rgba(255,140,66,0.14); color: #C25000; }
+    .arc-search {
+      flex: 1; min-width: 200px; border: 1.5px solid rgba(255,165,0,0.35); border-radius: 10px;
+      padding: 9px 13px; font-family: 'Noto Sans KR', sans-serif; font-size: 0.85rem;
+      font-weight: 500; color: var(--maple-brown); outline: none; background: #fff;
+    }
+    .arc-search:focus { border-color: var(--maple-orange); box-shadow: 0 0 0 3px rgba(255,107,0,0.12); }
+    .arc-count { font-size: 0.79rem; font-weight: 700; color: rgba(92,46,0,0.5); white-space: nowrap; }
+
+    .arc-box {
+      background: #fff; border: 1px solid rgba(255,165,0,0.25); border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(255,165,0,0.05);
+      height: 620px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .arc-item { padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.055); }
+    .arc-item:last-child { border-bottom: none; }
+    .arc-head {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 9px;
+    }
+    .arc-name {
+      font-size: 0.9rem; font-weight: 800; color: var(--maple-brown); line-height: 1.5;
+      word-break: keep-all; min-width: 0;
+    }
+    .arc-name.muted { color: rgba(92,46,0,0.45); }
+    .arc-date { font-variant-numeric: tabular-nums; }
+    .arc-season { font-size: 0.78rem; font-weight: 700; color: var(--maple-orange); margin-left: 8px; }
+    .arc-season.big { color: #C25000; }
+    .arc-meta {
+      flex-shrink: 0; font-size: 0.77rem; font-weight: 700; color: rgba(92,46,0,0.5);
+      white-space: nowrap; font-variant-numeric: tabular-nums;
+    }
+    .dead {
+      font-size: 0.68rem; font-weight: 800; color: rgba(92,46,0,0.42);
+      border: 1px solid rgba(92,46,0,0.18); border-radius: 4px; padding: 1px 5px; margin-left: 6px;
+      white-space: nowrap;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip-date {
+      background: rgba(255,165,0,0.07); border: 1px solid rgba(255,165,0,0.22); border-radius: 7px;
+      padding: 4px 8px; font-size: 0.75rem; font-weight: 600; color: rgba(92,46,0,0.75);
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .chip-date.recent { background: rgba(226,103,14,0.11); border-color: rgba(226,103,14,0.32); color: #A34A05; font-weight: 800; }
+    .chip-date i { font-style: normal; color: rgba(92,46,0,0.4); margin-left: 5px; font-size: 0.7rem; }
+    .chip-perk {
+      background: #fff; border: 1px solid rgba(255,165,0,0.3); border-radius: 7px;
+      padding: 4px 9px; font-size: 0.78rem; font-weight: 600; color: var(--maple-brown);
+      word-break: keep-all;
+    }
+    .chip-none { font-size: 0.78rem; font-weight: 600; color: rgba(92,46,0,0.35); }
+
+    .loading-wrap { text-align: center; padding: 60px 0; color: rgba(92,46,0,0.5); font-size: 0.95rem; font-weight: 700; }
+    .empty-wrap { text-align: center; padding: 50px 20px; color: rgba(92,46,0,0.42); font-size: 0.88rem; font-weight: 600; }
+    .foot-note {
+      display: flex; gap: 8px; background: rgba(255,165,0,0.07); border: 1px solid rgba(255,165,0,0.2);
+      border-radius: 10px; padding: 12px 16px; font-size: 0.8rem; color: rgba(92,46,0,0.65); line-height: 1.75;
+    }
+
+    /* ── Footer ── */
+    .site-footer { position: relative; z-index: 10; flex-shrink: 0; background: linear-gradient(180deg, rgba(255,248,236,0.9) 0%, #FFFDF9 100%); border-top: 1px solid rgba(255,165,0,0.25); display: flex; flex-direction: column; align-items: center; }
+    .footer-inner { width: 100%; max-width: 1100px; padding: 0 24px; }
+    .footer-main { padding: 32px 0; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+    .footer-col-title { font-family: 'Black Han Sans', sans-serif; font-size: 0.82rem; color: var(--maple-orange); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .footer-col-title::before { content:''; display:inline-block; width:3px; height:12px; background: var(--maple-yellow); border-radius: 2px; }
+    .footer-col p, .footer-col a { font-size: 0.78rem; color: rgba(92,46,0,0.65); font-weight: 500; line-height: 1.9; display: block; text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--maple-orange); }
+    .footer-bottom { border-top: 1px solid rgba(255,165,0,0.15); padding: 16px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .footer-bottom p { font-size: 0.72rem; color: rgba(92,46,0,0.5); font-weight: 500; }
+    .footer-bottom-links { display: flex; gap: 16px; }
+    .footer-bottom-links a { font-size: 0.72rem; color: rgba(92,46,0,0.6); font-weight: 700; text-decoration: none; transition: color .2s; }
+    .footer-bottom-links a:hover { color: var(--maple-orange); }
+
+    /* ── 📱 모바일 반응형 ── */
+    @media (max-width: 768px) {
+      html, body { overflow-x: hidden; }
+      .header-inner { padding: 0 16px; }
+      .header-row1 { padding: 10px 0; }
+      .header-row2 { flex-direction: column; align-items: stretch; gap: 10px; padding: 8px 0 12px; }
+      nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; }
+      nav a { padding: 7px 11px; font-size: 0.82rem; }
+      .header-search { width: 100%; }
+      .header-search input { width: 100%; flex: 1; }
+      .footer-main { grid-template-columns: 1.5fr 1fr; gap: 18px; padding: 28px 0; }
+      .footer-col:empty { display: none; }
+      .footer-bottom { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+      .footer-bottom-links { justify-content: center; }
+      /* 대시보드 */
+      .page-dash { padding: 26px 14px 60px; }
+      .page-title { font-size: 1.7rem; }
+      .page-desc { font-size: 0.9rem; }
+      .section { margin-bottom: 36px; }
+      .section-title { font-size: 1.18rem; }
+      .card-grid { grid-template-columns: 1fr; gap: 10px; }
+      .freq-card { padding: 15px 16px; border-radius: 13px; }
+      .freq-name { font-size: 0.89rem; }
+      .arc-search { min-width: 100%; order: 3; }
+      .arc-count { order: 2; margin-left: auto; }
+      .arc-box { height: 68vh; border-radius: 13px; }
+      .arc-item { padding: 13px 15px; }
+      .arc-head { flex-direction: column; align-items: flex-start; gap: 3px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-inner">
+      <div class="header-row1">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" style="vertical-align:middle;">
+              <g opacity="0.85">
+                <rect x="13" y="1" width="2" height="5" rx="1" fill="#FFD700"/><rect x="13" y="22" width="2" height="5" rx="1" fill="#FFD700"/><rect x="1" y="13" width="5" height="2" rx="1" fill="#FFD700"/><rect x="22" y="13" width="5" height="2" rx="1" fill="#FFD700"/><rect x="4.5" y="4.5" width="2" height="5" rx="1" fill="#FFD700" transform="rotate(45 5.5 7)"/><rect x="20" y="4.5" width="2" height="5" rx="1" fill="#FFD700" transform="rotate(-45 21 7)"/><rect x="4.5" y="19" width="2" height="5" rx="1" fill="#FFD700" transform="rotate(-45 5.5 21)"/><rect x="20" y="19" width="2" height="5" rx="1" fill="#FFD700" transform="rotate(45 21 21)"/>
+              </g>
+              <circle cx="14" cy="14" r="7.5" fill="url(#sg)"/>
+              <ellipse cx="11.5" cy="13" rx="1.1" ry="1.3" fill="#5C2E00"/><ellipse cx="16.5" cy="13" rx="1.1" ry="1.3" fill="#5C2E00"/>
+              <ellipse cx="10" cy="15.5" rx="1.5" ry="0.9" fill="rgba(255,120,80,0.5)"/><ellipse cx="18" cy="15.5" rx="1.5" ry="0.9" fill="rgba(255,120,80,0.5)"/>
+              <path d="M11.5 16.5 Q14 18.5 16.5 16.5" stroke="#5C2E00" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+              <defs>
+                <radialGradient id="sg" cx="40%" cy="35%" r="60%">
+                  <stop offset="0%" stop-color="#FFF176"/><stop offset="50%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FF9800"/>
+                </radialGradient>
+              </defs>
+            </svg>
+          </span>
+          <img src="1.png" alt="메이플 썬데이 로고" style="height: 24px;" />
+        </a>
+      </div>
+    </div>
+    <div class="header-line"></div>
+    <div class="header-inner">
+      <div class="header-row2">
+        <nav>
+          <a href="index.html">홈</a>
+          <a href="calendar.html">썬데이 달력</a>
+          <a href="dashboard.html" class="active">역대 썬데이</a>
+          <a href="sunday.html">썬데이 예측</a>
+          <a href="accuracy.html">적중 기록</a>
+          <a href="board.html">소식</a>
+        </nav>
+        <div class="header-search">
+          <input v-model="searchKeyword" placeholder="닉네임 검색" maxlength="12" @keyup.enter="reSearch" />
+          <button @click="reSearch" :disabled="!searchKeyword.trim()">조회</button>
+        </div>
+      </div>
+    </div>
+  </header>
+<div style="text-align:center;padding:8px 0;" id="ad-slot"></div>
+<script>
+  (function () {
+    var mobile = window.matchMedia('(max-width: 768px)').matches;
+    var ins = document.createElement('ins');
+    ins.className = 'kakao_ad_area';
+    ins.style.display = 'none';
+    ins.setAttribute('data-ad-unit', mobile ? 'DAN-jho3vnMPebKkf2Yi' : 'DAN-cqHIz0Ylbs5mOJZq');
+    ins.setAttribute('data-ad-width', mobile ? '320' : '728');
+    ins.setAttribute('data-ad-height', mobile ? '50' : '90');
+    document.getElementById('ad-slot').appendChild(ins);
+  })();
+</script>
+
+  <div class="page-dash">
+    <div class="dash-inner">
+
+      <div class="page-header">
+        <h1 class="page-title">역대 썬데이 기록</h1>
+        <p class="page-desc">요즘 자주 나오는 혜택이 몇 주마다 도는지, 그리고 2017년부터의 기록 전체를 확인해보세요.</p>
+        <div class="data-stamp" v-if="meta">📌 {{ meta.lastSunday }} 썬데이까지 반영</div>
+      </div>
+
+      <div v-if="loadError" class="loading-wrap">데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</div>
+
+      <template v-else-if="meta">
+        <!-- ══ 1. 최근 1년, 자주 나온 혜택 ══ -->
+        <div class="section">
+          <div class="section-head">
+            <h2 class="section-title">최근 1년, 자주 나온 혜택</h2>
+            <p class="section-desc">
+              최근 {{ slots.length }}번의 썬데이 중 몇 번 나왔는지 순서대로 정리했습니다.
+              막대는 왼쪽이 {{ meta.windowStart }}, 오른쪽이 {{ meta.lastSunday }}이며, 진한 칸이 그 주에 나온 썬데이입니다.
+            </p>
+          </div>
+
+          <div class="card-grid">
+            <div class="freq-card" v-for="(c, i) in freqCards" :key="c.name" :class="{ top: i < 3 }">
+              <div class="freq-name">
+                <span class="freq-rank">{{ i + 1 }}</span>
+                <span>{{ c.name }}</span>
+              </div>
+              <div class="freq-stats">
+                <span class="pill">최근 1년 {{ c.yearCount }}회</span>
+                <span class="pill plain" v-if="c.typicalText">보통 {{ c.typicalText }}마다</span>
+              </div>
+              <div>
+                <div class="wk-strip">
+                  <span class="wk" v-for="s in c.slots" :key="s.date" :class="{ on: s.on }"
+                        :title="s.date + (s.on ? ' — ' + c.name : ' — 없음')"></span>
+                </div>
+                <div class="wk-axis">
+                  <span>{{ meta.windowStart }}</span>
+                  <span>{{ meta.lastSunday }}</span>
+                </div>
+              </div>
+              <div class="freq-last">마지막 등장 <b>{{ c.last }}</b> · {{ c.agoText }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ 2. 역대 기록 전체 ══ -->
+        <div class="section">
+          <div class="section-head">
+            <h2 class="section-title">📜 역대 기록 전체</h2>
+            <p class="section-desc">2017년 3월 첫 썬데이부터 전부 담았습니다. 아래 목록을 스크롤해서 확인하세요.</p>
+          </div>
+
+          <div class="arc-bar">
+            <div class="tabs">
+              <button :class="{ on: tab === 'perk' }" @click="switchTab('perk')">혜택별 {{ perkList.length }}종</button>
+              <button :class="{ on: tab === 'date' }" @click="switchTab('date')">날짜별 {{ dateList.length }}회</button>
+            </div>
+            <input class="arc-search" v-model="query"
+                   :placeholder="tab === 'perk' ? '혜택 이름 검색 (예: 스타포스, 룬, 미라클)' : '날짜 · 혜택 · 이벤트 검색 (예: 2024.05, 미라클)'" />
+            <span class="arc-count">{{ shown.length }}건</span>
+          </div>
+
+          <div class="arc-box" ref="arcBox">
+            <div v-if="!shown.length" class="empty-wrap">검색 결과가 없습니다.</div>
+
+            <!-- 혜택별 -->
+            <template v-else-if="tab === 'perk'">
+              <div class="arc-item" v-for="p in shown" :key="p.name">
+                <div class="arc-head">
+                  <span class="arc-name" :class="{ muted: !p.active }">
+                    {{ p.name }}<span v-if="!p.active" class="dead">단종</span>
+                  </span>
+                  <span class="arc-meta">{{ p.total }}회 · {{ p.span }}</span>
+                </div>
+                <div class="chips">
+                  <span class="chip-date" v-for="a in p.appearances" :key="a.date" :class="{ recent: a.recent }">
+                    {{ a.date }}<i v-if="a.note">{{ a.note }}</i>
+                  </span>
+                </div>
+              </div>
+            </template>
+
+            <!-- 날짜별 -->
+            <template v-else>
+              <div class="arc-item" v-for="s in shown" :key="s.date">
+                <div class="arc-head">
+                  <span class="arc-name">
+                    <span class="arc-date">{{ s.date }}</span><span v-if="s.weekday" class="dead">{{ s.weekday }}요일</span>
+                    <span v-if="s.season" class="arc-season" :class="{ big: s.big }">{{ s.season }}</span>
+                  </span>
+                  <span class="arc-meta">{{ s.perks.length ? s.perks.length + '개' : '—' }}</span>
+                </div>
+                <div class="chips" v-if="s.perks.length">
+                  <span class="chip-perk" v-for="n in s.perks" :key="n">{{ n }}</span>
+                </div>
+                <div class="chip-none" v-else>이 주는 썬데이 혜택이 없었습니다</div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <div class="foot-note">
+          <span>ℹ️</span>
+          <div>
+            2017년부터 썬데이 메이플 기록을 종류별·날짜별로 정리해 오신 <strong>가마님</strong>의 자료를 이어받아 만든 데이터입니다.
+          </div>
+        </div>
+      </template>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-main">
+        <div class="footer-col">
+          <img src="1.png" alt="메이플 썬데이" style="height: 20px; margin-bottom: 12px; display: block; opacity: 0.7;">
+
+          <p style="font-size:0.72rem;line-height:1.8;opacity:0.6;">
+            문의 : maplessunday@gmail.com
+          </p>
+          <br>
+          <p style="font-size:0.72rem;line-height:1.8;opacity:0.6;">
+            Data Based on NEXON OPEN API<br>본 서비스는 NEXON Korea와 관련이 없습니다.
+          </p>
+        </div>
+
+        <div class="footer-col"></div>
+        <div class="footer-col"></div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">바로가기</div>
+          <a href="index.html">홈</a>
+          <a href="calendar.html">썬데이 달력</a>
+          <a href="dashboard.html">역대 썬데이</a>
+          <a href="sunday.html">썬데이 예측</a>
+          <a href="accuracy.html">적중 기록</a>
+          <a href="board.html">소식</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 메이플 썬데이. All rights reserved. by 캣독 Co.</p>
+        <div class="footer-bottom-links">
+          <a href="privacy.html">개인정보처리방침</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+const DAY = 86400000;
+const WINDOW_WEEKS = 52; // '최근 1년' = 최근 52번의 썬데이
+
+function toDate(s) {
+  const [y, m, d] = s.split('.').map(Number);
+  return new Date(y, m - 1, d);
+}
+function diffDays(a, b) {
+  return Math.round((b - a) / DAY);
+}
+// 썬데이는 항상 7일 간격이므로 경과도 '지나간 주 수'로 끊어서 센다
+function elapsedWeekDays(from, to) {
+  return Math.max(0, Math.floor(diffDays(from, to) / 7)) * 7;
+}
+function weekText(days) {
+  return days % 7 === 0 ? (days / 7) + '주' : days + '일';
+}
+function median(nums) {
+  if (!nums.length) return null;
+  const s = nums.slice().sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+// 중앙값은 소수가 나올 수 있으므로 가장 가까운 주 단위로 표현한다
+function typicalText(days) {
+  if (days == null) return '';
+  return Math.max(1, Math.round(days / 7)) + '주';
+}
+function gapsOf(dates) {
+  const out = [];
+  for (let i = 1; i < dates.length; i++) out.push(diffDays(dates[i - 1], dates[i]));
+  return out;
+}
+
+createApp({
+  setup() {
+    const searchKeyword = ref('');
+    const loadError = ref(false);
+    const raw = ref(null);
+
+    const tab = ref('perk');
+    const query = ref('');
+    const arcBox = ref(null);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    /* ── 최근 1년 슬롯 (실제로 진행된 마지막 52번의 썬데이) ── */
+    const slots = computed(() => {
+      if (!raw.value) return [];
+      return raw.value.sundays.slice(-WINDOW_WEEKS).map(s => s.date);
+    });
+
+    /* ── 섹션 1 : 자주 나온 혜택 카드 ── */
+    const freqCards = computed(() => {
+      if (!raw.value) return [];
+      const slotDates = slots.value;
+      const slotSet = new Set(slotDates);
+
+      return raw.value.types
+        .filter(t => t.active)
+        .map(t => {
+          const inWindow = t.dates.filter(d => slotSet.has(d));
+          if (!inWindow.length) return null;
+
+          const objs = inWindow.map(toDate);
+          const g = gapsOf(objs);
+          const lastObj = toDate(t.dates[t.dates.length - 1]);
+          const elapsed = elapsedWeekDays(lastObj, today);
+
+          return {
+            name: t.name,
+            yearCount: inWindow.length,
+            // 최근 1년 안의 간격이 2개 이상일 때만 '보통 N주마다'라고 말한다
+            typicalText: g.length >= 2 ? typicalText(median(g)) : '',
+            last: t.dates[t.dates.length - 1],
+            lastTime: lastObj.getTime(),
+            agoText: elapsed === 0 ? '지난 썬데이' : (weekText(elapsed) + ' 전'),
+            slots: slotDates.map(d => ({ date: d, on: slotSet.has(d) && inWindow.includes(d) }))
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.yearCount - a.yearCount || b.lastTime - a.lastTime);
+    });
+
+    /* ── 섹션 2-A : 혜택별 ── */
+    const perkList = computed(() => {
+      if (!raw.value) return [];
+      return raw.value.types
+        .map(t => {
+          const notes = t.notes || {};
+          const first = t.dates[0], last = t.dates[t.dates.length - 1];
+          // 주기 수치는 섹션 1('최근 1년' 기준)에만 두고, 여기선 기록 기간만 보여준다
+          const span = first === last ? first.slice(0, 7)
+                                      : first.slice(0, 7) + ' ~ ' + last.slice(0, 7);
+          return {
+            name: t.name,
+            active: t.active,
+            total: t.dates.length,
+            span,
+            lastTime: toDate(last).getTime(),
+            appearances: t.dates.map((d, i) => ({
+              date: d,
+              note: notes[d] ? notes[d].replace(/^\(|\)$/g, '') : '',
+              recent: i === t.dates.length - 1 // 가장 최근 등장만 강조
+            })).reverse(),
+            haystack: t.name.toLowerCase()
+          };
+        })
+        // 현역 먼저, 단종은 뒤로. 그 안에서 최근에 나온 순 (같은 날이면 등장 많은 순)
+        .sort((a, b) => (a.active === b.active ? 0 : a.active ? -1 : 1)
+                     || b.lastTime - a.lastTime
+                     || b.total - a.total);
+    });
+
+    /* ── 섹션 2-B : 날짜별 ── */
+    const dateList = computed(() => {
+      if (!raw.value) return [];
+      // 날짜별 원문은 샤이닝/솔 에르다 타임을 따로 적지 않으므로,
+      // 종류별 기록에서 그 날짜에 걸린 혜택을 모두 역산해 채운다.
+      const map = new Map();
+      raw.value.sundays.forEach(s => {
+        map.set(s.date, { date: s.date, season: s.season || '', big: !!s.big, weekday: s.weekday || '', perks: [] });
+      });
+      raw.value.types.forEach(t => {
+        t.dates.forEach(d => {
+          if (!map.has(d)) map.set(d, { date: d, season: '', big: false, weekday: '', perks: [] });
+          map.get(d).perks.push(t.name);
+        });
+      });
+      return [...map.values()]
+        .map(s => Object.assign(s, { haystack: (s.date + ' ' + s.season + ' ' + s.perks.join(' ')).toLowerCase() }))
+        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    });
+
+    const shown = computed(() => {
+      const list = tab.value === 'perk' ? perkList.value : dateList.value;
+      const q = query.value.trim().toLowerCase();
+      if (!q) return list;
+      return list.filter(x => x.haystack.includes(q));
+    });
+
+    const meta = computed(() => {
+      if (!raw.value) return null;
+      const sundays = raw.value.sundays;
+      return {
+        lastSunday: sundays[sundays.length - 1].date,
+        windowStart: slots.value[0] || sundays[0].date
+      };
+    });
+
+    function switchTab(next) {
+      if (tab.value === next) return;
+      tab.value = next;
+      query.value = '';
+      nextTick(() => { if (arcBox.value) arcBox.value.scrollTop = 0; });
+    }
+
+    onMounted(() => {
+      const data = window.SUNDAY_CYCLES;
+      if (!data || !data.types || !data.sundays || !data.sundays.length) {
+        console.error('대시보드 데이터를 찾을 수 없습니다. data/sunday-cycles.js 를 확인해주세요.');
+        loadError.value = true;
+        return;
+      }
+      raw.value = data;
+    });
+
+    const _NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,12}$/;
+
+    function reSearch() {
+      const name = searchKeyword.value.trim();
+      if (!name) return;
+      if (!_NICKNAME_RE.test(name)) {
+        alert('닉네임은 2~12자의 한글, 영문, 숫자만 사용할 수 있습니다.');
+        return;
+      }
+      window.location.href = `result.html?name=${encodeURIComponent(name)}`;
+    }
+
+    return {
+      searchKeyword, reSearch,
+      loadError, meta, slots,
+      freqCards,
+      tab, switchTab, query, shown, perkList, dateList, arcBox
+    };
+  }
+}).mount('#app');
+</script>
+<script async type="text/javascript" charset="utf-8" src="https://t1.kakaocdn.net/kas/static/ba.min.js"></script>
+</body>
+</html>

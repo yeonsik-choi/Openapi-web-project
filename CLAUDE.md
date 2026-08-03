@@ -132,6 +132,15 @@ Standalone HTML pages using Vue 3 via CDN (no build toolchain):
 - `result.html` — character detail page
 - `sunday.html` — Sunday Maple prediction/info
 - `board.html` — notice board
+- `dashboard.html` — two sections only: (1) benefits that appeared most in the last 52 Sundays, each with a
+  52-week strip and its typical cadence; (2) the full archive in a scroll box, tabbed 혜택별 / 날짜별
+
+`dashboard.html` is the one page that does not call the backend. It loads
+`frontend/data/sunday-cycles.js` via a plain `<script src>` (which sets `window.SUNDAY_CYCLES`) —
+deliberately not `fetch` + JSON, so the page still works when the HTML is opened directly over
+`file://`. Regenerate that file with `python tools/build_sunday_cycles.py [원본.txt]` whenever
+가마님's "역대 썬데이메이플 정리" post is updated — "경과"/"주기 초과" are computed against the
+browser's current date, so stale data quietly ages.
 
 All pages call the backend API directly. The backend URL is hardcoded in each HTML file's `<script>` section. `vercel.json` enables clean URLs.
 

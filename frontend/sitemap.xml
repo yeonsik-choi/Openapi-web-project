@@ -16,6 +16,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://maplessunday.com/dashboard</loc>
+    <lastmod>2026-08-03</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://maplessunday.com/sunday</loc>
     <lastmod>2026-08-02</lastmod>
     <priority>0.8</priority>
