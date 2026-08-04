@@ -90,14 +90,6 @@ class EquipUi(BaseModel):
     soul_option: str | None = Field(default=None, serialization_alias="soulOption")
 
 
-class UnionPresetUi(BaseModel):
-    model_config = _MODEL
-
-    blocks: list[dict[str, Any]] = Field(default_factory=list)
-    raiderStats: list[str] = Field(default_factory=list)
-    occupiedStats: list[str] = Field(default_factory=list)
-
-
 class UnionHeader(BaseModel):
     model_config = _MODEL
 
@@ -148,7 +140,9 @@ class UnionResponse(BaseModel):
     champion: UnionChampionSection = Field(default_factory=UnionChampionSection)
     artifact: UnionArtifactSection = Field(default_factory=UnionArtifactSection)
     activePreset: int | None = None
-    presets: dict[str, UnionPresetUi] = Field(default_factory=dict)
+    maxPoint: int | None = None
+    raiderStats: list[str] = Field(default_factory=list)
+    statPresets: dict[str, list[str]] = Field(default_factory=dict)
 
 
 class JobSkillUi(BaseModel):

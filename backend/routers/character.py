@@ -30,7 +30,6 @@ from schemas.character_all import (
     UnionChampionSection,
     UnionChampionSlotRow,
     UnionHeader,
-    UnionPresetUi,
     UnionResponse,
 )
 from services.nexon_api import (
@@ -330,44 +329,25 @@ def _rank_int(payload: dict) -> int | None:
         return None
 
 
-_UNION_BLOCK_DROP_KEYS = frozenset(
-    (
-        "block_control_point",
-        "blockControlPoint",
-        "block_position",
-        "blockPosition",
-        "block_type",
-        "blockType",
-    )
-)
+def _union_stat_lines(raw: Any) -> list[str]:
+    return [str(x) for x in raw] if isinstance(raw, list) else []
 
 
-def _union_block_without_coords(block: dict[str, Any]) -> dict[str, Any]:
-    return {k: v for k, v in block.items() if k not in _UNION_BLOCK_DROP_KEYS}
-
-
-def _build_preset(preset_data: dict | None) -> UnionPresetUi:
-    if not preset_data:
-        return UnionPresetUi()
-    blocks = _nget(preset_data, "union_block", "unionBlock")
-    if not isinstance(blocks, list):
-        blocks = []
-    blocks_out: list[dict[str, Any]] = [
-        _union_block_without_coords(dict(b)) for b in blocks if isinstance(b, dict)
-    ]
-    blocks_out.sort(
-        key=lambda b: _parse_int(_nget(b, "block_level", "blockLevel")) or 0,
-        reverse=True,
-    )
-    rs = _nget(preset_data, "union_raider_stat", "unionRaiderStat")
-    raider_stats = [str(x) for x in rs] if isinstance(rs, list) else []
-    occ = _nget(preset_data, "union_occupied_stat", "unionOccupiedStat")
-    occupied = [str(x) for x in occ] if isinstance(occ, list) else []
-    return UnionPresetUi(
-        blocks=blocks_out,
-        raiderStats=raider_stats,
-        occupiedStats=occupied,
-    )
+def _union_stat_presets(raider: dict) -> dict[str, list[str]]:
+    raw = _nget(raider, "union_state_stat_preset", "unionStateStatPreset")
+    if not isinstance(raw, list):
+        return {}
+    presets: dict[str, list[str]] = {}
+    for row in raw:
+        if not isinstance(row, dict):
+            continue
+        no = _parse_int(_nget(row, "preset_no", "presetNo"))
+        if no is None:
+            continue
+        presets[str(no)] = _union_stat_lines(
+            _nget(row, "union_state_stat", "unionStateStat")
+        )
+    return presets
 
 
 def _build_union_artifact_section(artifact: dict) -> UnionArtifactSection:
@@ -442,18 +422,16 @@ def _assemble_union_response(
             _nget(union_basic, "union_artifact_level", "unionArtifactLevel")
         ),
     )
-    active = _parse_int(_nget(raider, "use_preset_no", "usePresetNo"))
-    presets: dict[str, UnionPresetUi] = {}
-    for i in range(1, 6):
-        pdata = _nget(raider, f"union_raider_preset_{i}", f"unionRaiderPreset{i}")
-        presets[str(i)] = _build_preset(pdata if isinstance(pdata, dict) else None)
-
     return UnionResponse(
         header=header,
         champion=_build_union_champion_section(champion),
         artifact=_build_union_artifact_section(artifact),
-        activePreset=active,
-        presets=presets,
+        activePreset=_parse_int(_nget(raider, "use_preset_no", "usePresetNo")),
+        maxPoint=_parse_int(_nget(raider, "union_max_point", "unionMaxPoint")),
+        raiderStats=_union_stat_lines(
+            _nget(raider, "union_raider_stat", "unionRaiderStat")
+        ),
+        statPresets=_union_stat_presets(raider),
     )
 
 

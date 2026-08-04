@@ -269,19 +269,22 @@
     .union-wrapper { display: flex; flex-direction: column; gap: 24px; }
     .union-card { background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,250,240,0.9)); border: 1px solid rgba(255,165,0,0.25); border-radius: 14px; padding: 24px; box-shadow: 0 4px 12px rgba(255,165,0,0.05); }
     .union-card-title { font-family: 'Black Han Sans', sans-serif; font-size: 1.2rem; color: var(--maple-orange); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(255,165,0,0.15); padding-bottom: 12px; }
-    .union-preset-group { display: flex; gap: 6px; }
+    .union-preset-group { display: flex; gap: 6px; flex-wrap: wrap; }
     .union-preset-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,165,0,0.3); background: #fff; font-size: 0.8rem; font-weight: 700; color: rgba(92,46,0,0.6); cursor: pointer; transition: all 0.2s; }
     .union-preset-btn.active { background: var(--maple-orange); color: #fff; border-color: var(--maple-orange); box-shadow: 0 3px 8px rgba(255,107,0,0.25); }
-    .union-raider-content { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
-    .union-block-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; align-content: start; }
-    .union-block-item { background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; transition: transform 0.15s; }
-    .union-block-item:hover { transform: translateY(-2px); border-color: rgba(255,165,0,0.3); }
-    .union-block-job { font-size: 0.85rem; font-weight: 800; color: var(--maple-brown); }
-    .union-block-level { font-size: 0.75rem; color: rgba(92,46,0,0.6); font-weight: 500; }
+    .union-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+    .union-stat-card { background: #FAFAFA; border: 1px solid rgba(0,0,0,0.06); border-radius: 10px; padding: 10px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .union-stat-card.filled { background: #fff; border-color: rgba(255,165,0,0.35); }
+    .union-stat-card.maxed { border-color: var(--maple-orange); box-shadow: 0 0 0 1px var(--maple-orange) inset; }
+    .union-stat-badge { font-size: 0.65rem; font-weight: 800; color: rgba(92,46,0,0.45); background: rgba(0,0,0,0.05); border-radius: 999px; padding: 2px 8px; }
+    .union-stat-card.filled .union-stat-badge { color: var(--maple-orange); background: rgba(255,165,0,0.12); }
+    .union-stat-name { font-size: 0.8rem; font-weight: 700; color: rgba(92,46,0,0.55); text-align: center; }
+    .union-stat-card.filled .union-stat-name { color: var(--maple-orange); }
+    .union-stat-value { font-size: 0.9rem; font-weight: 800; color: var(--maple-brown); }
     .union-effects-panel { display: flex; flex-direction: column; gap: 16px; }
     .union-effect-box { background: #FAFAFA; border-radius: 8px; padding: 16px; border: 1px solid rgba(0,0,0,0.05); }
     .union-effect-box h4 { font-size: 0.9rem; color: var(--maple-brown); margin-bottom: 10px; font-weight: 800; }
-    .union-effect-ul { list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 0; }
+    .union-effect-ul { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 16px; padding: 0; }
     .union-effect-ul li { font-size: 0.8rem; color: rgba(92,46,0,0.75); display: flex; gap: 6px; }
     .union-effect-ul li::before { content: '•'; color: var(--maple-orange); font-weight: bold; }
     .artifact-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
@@ -354,7 +357,7 @@
       .union-card { padding: 16px; }
       .union-card-title { flex-direction: column; align-items: flex-start; gap: 10px; }
       .union-preset-group { flex-wrap: wrap; }
-      .union-raider-content { grid-template-columns: 1fr; gap: 16px; }
+      .union-stat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .artifact-layout { grid-template-columns: 1fr; gap: 16px; }
       .artifact-crystals { grid-template-columns: repeat(2, 1fr); }
       .champion-layout { grid-template-columns: 1fr; gap: 16px; }
@@ -759,40 +762,38 @@
                   <span v-if="char.union.header" style="font-size: 0.9rem; font-weight: 700; color: rgba(92,46,0,0.6);">
                     Lv.{{ char.union.header.level }}
                   </span>
+                  <span v-if="char.union.maxPoint" style="font-size: 0.8rem; font-weight: 700; color: rgba(92,46,0,0.5);">
+                    {{ unionStats.usedPoint }}/{{ char.union.maxPoint }}P
+                  </span>
                 </div>
                 
                 <div class="union-preset-group">
-                  <button v-for="i in 5" :key="i" class="union-preset-btn" :class="{ active: activeUnionPreset === String(i) }" @click="activeUnionPreset = String(i)">
-                    프리셋 {{ i }}
+                  <button v-for="i in 10" :key="i" class="union-preset-btn" :class="{ active: activeUnionPreset === String(i) }" @click="activeUnionPreset = String(i)">
+                    {{ i }}
                   </button>
                 </div>
               </div>
-              <div class="union-raider-content" v-if="char.union.presets && char.union.presets[activeUnionPreset]">
-                <div class="union-block-list">
-                  <div class="union-block-item" v-for="(block, idx) in char.union.presets[activeUnionPreset].blocks" :key="idx">
-                    <div class="union-block-job">{{ block.block_class }}</div>
-                    <div class="union-block-level">Lv.{{ block.block_level }}</div>
-                  </div>
-                </div>
-                <div class="union-effects-panel">
-                  <div class="union-effect-box">
-                    <h4>공격대원 효과</h4>
-                    <ul class="union-effect-ul">
-                      <li v-for="(eff, idx) in aggregatedRaiderStats" :key="idx">{{ eff }}</li>
-                    </ul>
-                    <div v-if="aggregatedRaiderStats.length === 0" style="font-size:0.8rem; color:#999;">효과가 없습니다.</div>
-                  </div>
-                  <div class="union-effect-box">
-                    <h4>공격대 점령 효과</h4>
-                    <ul class="union-effect-ul">
-                      <li v-for="(eff, idx) in aggregatedOccupiedStats" :key="idx">{{ eff }}</li>
-                    </ul>
-                    <div v-if="aggregatedOccupiedStats.length === 0" style="font-size:0.8rem; color:#999;">효과가 없습니다.</div>
-                  </div>
+              <div class="union-stat-grid">
+                <div class="union-stat-card" v-for="card in unionStats.cards" :key="card.label" :class="{ filled: card.level > 0, maxed: card.level >= card.max }">
+                  <div class="union-stat-badge">{{ card.level }}/{{ card.max }}</div>
+                  <div class="union-stat-name">{{ card.label }}</div>
+                  <div class="union-stat-value">{{ card.value }}</div>
                 </div>
               </div>
-              <div v-else style="text-align:center; padding: 40px; font-size: 0.9rem; color: #888;">
-                해당 프리셋 정보가 없습니다.
+              <div class="union-effects-panel">
+                <div class="union-effect-box" v-if="unionStats.extras.length > 0">
+                  <h4>기타 유니온 스탯</h4>
+                  <ul class="union-effect-ul">
+                    <li v-for="(eff, idx) in unionStats.extras" :key="idx">{{ eff }}</li>
+                  </ul>
+                </div>
+                <div class="union-effect-box">
+                  <h4>공격대원 효과</h4>
+                  <ul class="union-effect-ul">
+                    <li v-for="(eff, idx) in aggregatedRaiderStats" :key="idx">{{ eff }}</li>
+                  </ul>
+                  <div v-if="aggregatedRaiderStats.length === 0" style="font-size:0.8rem; color:#999;">효과가 없습니다.</div>
+                </div>
               </div>
             </div>
 
@@ -1177,13 +1178,74 @@ createApp({
     }
 
     const aggregatedRaiderStats = computed(() => {
-      if (!char.value || !char.value.union || !char.value.union.presets || !char.value.union.presets[activeUnionPreset.value]) return [];
-      return aggregateEffects(char.value.union.presets[activeUnionPreset.value].raiderStats);
+      if (!char.value || !char.value.union) return [];
+      return aggregateEffects(char.value.union.raiderStats);
     });
 
-    const aggregatedOccupiedStats = computed(() => {
-      if (!char.value || !char.value.union || !char.value.union.presets || !char.value.union.presets[activeUnionPreset.value]) return [];
-      return aggregateEffects(char.value.union.presets[activeUnionPreset.value].occupiedStats);
+    // 유니온 스탯 1레벨당 상승치. 기본 스탯은 15레벨, 확장 스탯은 40레벨이 만렙.
+    const UNION_STAT_DEFS = [
+      { key: 'STR',  label: 'STR',            max: 15, per: 5,    unit: '' },
+      { key: 'DEX',  label: 'DEX',            max: 15, per: 5,    unit: '' },
+      { key: 'INT',  label: 'INT',            max: 15, per: 5,    unit: '' },
+      { key: 'LUK',  label: 'LUK',            max: 15, per: 5,    unit: '' },
+      { key: 'ATT',  label: '공격력',          max: 15, per: 1,    unit: '' },
+      { key: 'MATT', label: '마력',            max: 15, per: 1,    unit: '' },
+      { key: 'HP',   label: '최대 HP',         max: 15, per: 250,  unit: '' },
+      { key: 'MP',   label: '최대 MP',         max: 15, per: 250,  unit: '' },
+      { key: 'CDMG', label: '크리티컬 데미지',  max: 40, per: 0.5,  unit: '%' },
+      { key: 'BOSS', label: '보스 데미지',      max: 40, per: 1,    unit: '%' },
+      { key: 'IED',  label: '방어율 무시',      max: 40, per: 1,    unit: '%' },
+      { key: 'CRIT', label: '크리티컬 확률',    max: 40, per: 1,    unit: '%' },
+      { key: 'BUFF', label: '버프 지속 시간',   max: 40, per: 1,    unit: '%' },
+      { key: 'NDMG', label: '일반몹 데미지',    max: 40, per: 1,    unit: '%' },
+      { key: 'EXP',  label: '획득 경험치',      max: 40, per: 0.25, unit: '%' },
+      { key: 'RES',  label: '상태 이상 내성',   max: 40, per: 1,    unit: '' },
+    ];
+
+    // API가 내려주는 효과 문구(예: "보스 몬스터 공격 시 데미지 40% 증가")를 위 표의 key로 매핑.
+    function unionStatKey(name) {
+      if (name.includes('크리티컬 데미지')) return 'CDMG';
+      if (name.includes('크리티컬 확률')) return 'CRIT';
+      if (name.includes('방어율 무시')) return 'IED';
+      if (name.includes('버프 지속')) return 'BUFF';
+      if (name.includes('상태 이상 내성')) return 'RES';
+      if (name.includes('경험치')) return 'EXP';
+      if (name.includes('보스')) return 'BOSS';
+      if (name.includes('일반')) return 'NDMG';
+      if (name.includes('최대 HP')) return 'HP';
+      if (name.includes('최대 MP')) return 'MP';
+      if (name.includes('공격력')) return 'ATT';
+      if (name.includes('마력')) return 'MATT';
+      if (name.includes('STR')) return 'STR';
+      if (name.includes('DEX')) return 'DEX';
+      if (name.includes('INT')) return 'INT';
+      if (name.includes('LUK')) return 'LUK';
+      return null;
+    }
+
+    const unionStats = computed(() => {
+      const presets = (char.value && char.value.union && char.value.union.statPresets) || {};
+      const lines = presets[activeUnionPreset.value] || [];
+      const totals = {};
+      const extras = [];
+
+      lines.forEach(line => {
+        const m = String(line).match(/^(.*?)\s+([0-9.]+)(%?)\s*증가$/);
+        const key = m ? unionStatKey(m[1]) : null;
+        if (!key) { extras.push(line); return; }
+        totals[key] = (totals[key] || 0) + parseFloat(m[2]);
+      });
+
+      let usedPoint = 0;
+      const cards = UNION_STAT_DEFS.map(def => {
+        const amount = totals[def.key] || 0;
+        const level = Math.min(def.max, Math.round(amount / def.per));
+        usedPoint += level;
+        const shown = Number.isInteger(amount) ? amount : parseFloat(amount.toFixed(2));
+        return { label: def.label, level, max: def.max, value: `+${shown}${def.unit}` };
+      });
+
+      return { cards, extras, usedPoint };
     });
 
     const championSlotsArray = computed(() => {
@@ -1260,7 +1322,7 @@ createApp({
       getGradeColor, getGradeIcon, renderStatLine, renderPercentStatLine,
       formatTopSoulName, expandedSetIdx, toggleSetEffect,
 
-      aggregatedRaiderStats, aggregatedOccupiedStats,
+      aggregatedRaiderStats, unionStats,
       championSlotsArray
     };
   }
