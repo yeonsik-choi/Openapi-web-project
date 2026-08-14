@@ -511,7 +511,7 @@
         <span class="notice-icon">📢</span>
         <div class="notice-body">
           <span class="notice-label">공지</span>
-          <strong>8월 23일</strong> 썬데이 예측은 <strong>8월 14일</strong>에 업데이트될 예정입니다.
+          <strong>8월 30일</strong> 썬데이 예측은 <strong>8월 21일</strong>에 업데이트될 예정입니다.
         </div>
       </div>
 
@@ -673,18 +673,24 @@ createApp({
     const modelOpen = ref(false);
 
     // 👇 예측 날짜 수정 가능 영역
-    const nextStarForceDate = ref('2026.08.16');
+    const nextStarForceDate = ref('2026.09.27');
     const nextMiracleDayDate = ref('2026.09.13');
 
     const predictions = ref([
-      { rank: 1, probability: '60.4%', benefit: '샤이닝 스타포스 타임', note: '6주 경과' },
-      { rank: 2, probability: '44.5%', benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%', note: '3주 경과' },
-      { rank: 3, probability: '41.7%', benefit: '트레져 헌터 경험치 3배', note: '3주 경과' },
-      { rank: 4, probability: '36.3%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '5주 경과' },
-      { rank: 5, probability: '29.9%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '1주 경과' },
+      { rank: 1, probability: '49.1%', benefit: '몬스터 파크 클리어 경험치 추가 250%', note: '2주 경과' },
+      { rank: 2, probability: '46.5%', benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%', note: '4주 경과' },
+      { rank: 3, probability: '44.1%', benefit: '트레져 헌터 경험치 3배', note: '4주 경과' },
+      { rank: 4, probability: '41.4%', benefit: "사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가", note: '4주 경과' },
+      { rank: 5, probability: '38.9%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '6주 경과' },
     ]);
 
     const recentSundays = ref([
+      {
+        date: '8월 16일',
+        benefit: '샤이닝 스타포스, [HEXA 스탯] 메인 스탯이 5레벨 이상일 때, 메인 스탯의 강화 확률 20% 증가',
+        hit: true,
+        hitRank: 1
+      },
       {
         date: '8월 9일',
         benefit: '몬스터 파크 클리어 경험치 추가 250%, 솔 에르다 타임',
