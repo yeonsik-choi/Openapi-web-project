@@ -511,7 +511,7 @@
         <span class="notice-icon">📢</span>
         <div class="notice-body">
           <span class="notice-label">공지</span>
-          <strong>9월 6일</strong> 썬데이 예측은 <strong>8월 28일</strong>에 업데이트될 예정입니다.
+          <strong>9월 13일</strong> 썬데이 예측은 <strong>9월 4일</strong>에 업데이트될 예정입니다.
         </div>
       </div>
 
@@ -677,14 +677,23 @@ createApp({
     const nextMiracleDayDate = ref('2026.09.13');
 
     const predictions = ref([
-      { rank: 1, probability: '47.7%', benefit: '트레져 헌터 경험치 3배', note: '5주 경과' },
-      { rank: 2, probability: '45.7%', benefit: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가', note: '5주 경과' },
-      { rank: 3, probability: '41.0%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '7주 경과' },
-      { rank: 4, probability: '35.0%', benefit: "어빌리티 재설정 비용 50% 할인", note: '4주 경과' },
-      { rank: 5, probability: '30.1%', benefit: "몬스터 파크 클리어 경험치 추가 250%", note: '1주 경과' },
+      { rank: 1, probability: '58.8%', benefit: '어빌리티 재설정 비용 50% 할인', note: '5주 경과' },
+      { rank: 2, probability: '57.2%', benefit: '소울 조각 사용 시 위대한 소울 획득 확률 5배', note: '8주 경과' },
+      { rank: 3, probability: '48.6%', benefit: "몬스터 파크 클리어 경험치 추가 250%", note: '2주 경과' },
+      { rank: 4, probability: '43.5%', benefit: "몬스터 컬렉션 신규 몬스터 등록 확률 추가 100%, 몬스터 컬렉션 '의문의 모몽' 3개 지급, 사냥 시 소환되는 엘리트 몬스터 수 증가(1마리→3마리)", note: '8주 경과' },
+      { rank: 5, probability: '36.0%', benefit: "미라클 타임", note: '5주 경과' },
     ]);
 
     const recentSundays = ref([
+      {
+        date: '8월 30일',
+        benefit: '트레져 헌터 경험치 3배, 사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, 주문의 흔적 강화 비용 50% 할인',
+        benefit1: '트레져 헌터 경험치 3배, ',
+        benefit2: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, 주문의 흔적 강화 비용 50% 할인',
+        hit: true,
+        hitRank: 1,
+        extraHitRank: 2
+      },
       {
         date: '8월 23일',
         benefit: '몬스터 파크 클리어 경험치 추가 250%, 룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%',
@@ -711,19 +720,6 @@ createApp({
         benefit: '어빌리티 재설정 비용 50% 할인, 미라클 타임',
         hit: true,
         hitRank: 5
-      },
-      {
-        date: '7월 26일',
-        benefit: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%, 사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, 트레져 헌터 경험치 3배, 몬스터 파크 클리어 경험치 추가 250%',
-        benefit1: '룬 재등장 및 재사용 대기시간 감소, 룬 경험치 버프 효과 +100%, 콤보킬 경험치 획득량 +300%, ',
-        benefit2: '사냥을 통해 획득할 수 있는 솔 에르다 2배로 증가, ',
-        benefit3: '트레져 헌터 경험치 3배, ',
-        benefit4: '몬스터 파크 클리어 경험치 추가 250%',
-        hit: true,
-        hitRank: 1,
-        extraHitRank: 2,
-        extraHitRank2: 4,
-        extraHitRank3: 5
       }
     ]);
 
